@@ -4,7 +4,7 @@ export type Company = {
 
 export type Profile = {
   name: string;
-  role: string;
+  roles: readonly string[];
   email: string;
   signals: readonly string[];
   summary: string;
@@ -13,7 +13,7 @@ export type Profile = {
 
 export const profile = {
   name: "Harrison Wang",
-  role: "Senior Software Engineer",
+  roles: ["Senior Software Engineer", "System Design", "Software Architect"],
   email: "hello@harrison.arch",
   signals: ["Software architect", "15+ years", "Open to connect"],
   summary:

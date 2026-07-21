@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import AnimatedProfileHeading from "@/app/components/home/AnimatedProfileHeading";
+import ProfileSignals from "@/app/components/home/ProfileSignals";
 import { profile } from "@/app/data/profile";
 
 const handlePositions = [
@@ -33,50 +35,32 @@ export default function Hero() {
       id="home"
       aria-labelledby="hero-heading"
     >
-      <ul
-        className="mb-7 flex max-w-full flex-wrap items-center justify-center font-mono text-[0.7rem] font-semibold tracking-[0.16em] text-brand uppercase sm:mb-9 sm:text-xs sm:tracking-[0.2em]"
-        aria-label="Professional summary"
-      >
-        {profile.signals.map((signal) => (
-          <li
-            className="my-1 border-l border-brand/35 px-3 first:border-l-0 sm:px-5"
-            key={signal}
-          >
-            {signal}
-          </li>
-        ))}
-      </ul>
+      <ProfileSignals signals={profile.signals} />
 
       <div className="relative flex w-full max-w-4xl flex-col items-center justify-center border-2 border-dashed border-brand px-5 py-10 sm:min-h-64 sm:px-10 sm:py-12">
         <SelectionHandles />
-        <h1
-          className="text-[clamp(3.5rem,10vw,7rem)] leading-[0.88] font-extrabold tracking-[-0.075em] text-zinc-950 text-balance dark:text-zinc-50"
-          id="hero-heading"
-        >
-          {profile.name}
-        </h1>
-        <p className="mt-7 text-[clamp(1.6rem,4vw,3rem)] leading-none font-semibold tracking-[-0.04em] text-zinc-700 dark:text-zinc-300">
-          {profile.role}
-        </p>
+        <AnimatedProfileHeading name={profile.name} roles={profile.roles} />
       </div>
 
-      <p className="mt-8 max-w-[58ch] text-base leading-7 text-pretty text-zinc-600 sm:mt-9 sm:text-lg dark:text-zinc-400">
-        {profile.summary}
-      </p>
+      <div className="hero-details-reveal flex w-full flex-col items-center">
+        <p className="mt-8 max-w-[58ch] text-base leading-7 text-pretty text-zinc-600 sm:mt-9 sm:text-lg dark:text-zinc-400">
+          {profile.summary}
+        </p>
 
-      <div className="mt-8 grid w-full max-w-lg grid-cols-1 gap-3 sm:mt-9 sm:grid-cols-2">
-        <Link
-          className="inline-flex h-13 items-center justify-center rounded-md bg-zinc-900 px-6 text-base font-semibold whitespace-nowrap text-stone-50 transition duration-200 hover:-translate-y-0.5 hover:bg-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-px motion-reduce:transform-none motion-reduce:transition-none dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-brand dark:hover:text-white"
-          href="/#writing"
-        >
-          Read blog
-        </Link>
-        <Link
-          className="inline-flex h-13 items-center justify-center rounded-md border border-zinc-300 bg-stone-50/80 px-6 text-base font-semibold whitespace-nowrap text-zinc-700 transition duration-200 hover:-translate-y-0.5 hover:border-zinc-500 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-px motion-reduce:transform-none motion-reduce:transition-none dark:border-zinc-700 dark:bg-zinc-950/70 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
-          href="/#experience"
-        >
-          View experience
-        </Link>
+        <div className="mt-8 grid w-full max-w-lg grid-cols-1 gap-3 sm:mt-9 sm:grid-cols-2">
+          <Link
+            className="inline-flex h-13 items-center justify-center rounded-md bg-zinc-900 px-6 text-base font-semibold whitespace-nowrap text-stone-50 transition duration-200 hover:-translate-y-0.5 hover:bg-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-px motion-reduce:transform-none motion-reduce:transition-none dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-brand dark:hover:text-white"
+            href="/#writing"
+          >
+            Read blog
+          </Link>
+          <Link
+            className="inline-flex h-13 items-center justify-center rounded-md border border-zinc-300 bg-stone-50/80 px-6 text-base font-semibold whitespace-nowrap text-zinc-700 transition duration-200 hover:-translate-y-0.5 hover:border-zinc-500 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-px motion-reduce:transform-none motion-reduce:transition-none dark:border-zinc-700 dark:bg-zinc-950/70 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
+            href="/#experience"
+          >
+            View experience
+          </Link>
+        </div>
       </div>
     </section>
   );
