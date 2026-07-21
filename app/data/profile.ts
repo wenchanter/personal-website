@@ -1,28 +1,28 @@
-export type Company = {
-  name: string;
-};
-
 export type Profile = {
   name: string;
   roles: readonly string[];
   email: string;
   signals: readonly string[];
   summary: string;
-  companies: readonly Company[];
+  skills: readonly string[];
 };
 
 export const profile = {
   name: "Harrison Wang",
-  roles: ["Senior Software Engineer", "System Design", "Software Architect"],
+  roles: ["Senior Software Engineer", "System Designer", "Software Architect"],
   email: "hello@harrison.arch",
   signals: ["Software architect", "15+ years", "Open to connect"],
   summary:
     "I design resilient distributed systems and build clear, production-ready products with Next.js.",
-  companies: [
-    { name: "ByteDance" },
-    { name: "Alibaba" },
-    { name: "NetEase" },
-    { name: "Yonyou" },
-    { name: "NTT DATA" },
+  skills: [
+    "Python",
+    "Spring Cloud",
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Kubernetes",
+    "Docker",
+    "Redis",
+    "Apache Kafka",
   ],
 } as const satisfies Profile;

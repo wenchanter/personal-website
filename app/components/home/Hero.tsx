@@ -56,9 +56,9 @@ export default function Hero() {
           </Link>
           <Link
             className="inline-flex h-13 items-center justify-center rounded-md border border-zinc-300 bg-stone-50/80 px-6 text-base font-semibold whitespace-nowrap text-zinc-700 transition duration-200 hover:-translate-y-0.5 hover:border-zinc-500 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-px motion-reduce:transform-none motion-reduce:transition-none dark:border-zinc-700 dark:bg-zinc-950/70 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
-            href="/#experience"
+            href="/#skills"
           >
-            View experience
+            View skills
           </Link>
         </div>
       </div>
