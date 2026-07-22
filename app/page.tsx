@@ -2,6 +2,7 @@ import CanvasDecorations from "@/app/components/home/CanvasDecorations";
 import Hero from "@/app/components/home/Hero";
 import SkillShow from "@/app/components/home/SkillShow";
 import SkillsStrip from "@/app/components/home/SkillsStrip";
+import WorkHistory from "@/app/components/home/WorkHistory";
 import WritingPreview from "@/app/components/home/WritingPreview";
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
       </div>
       <SkillsStrip />
       <SkillShow />
+      <WorkHistory />
       <WritingPreview />
     </main>
   );

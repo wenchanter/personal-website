@@ -40,6 +40,12 @@ export default function RootLayout({
         </Link>
         <SiteHeader />
         <SmoothScroll>{children}</SmoothScroll>
+        <div className="orb-burst" data-orb-burst aria-hidden="true" />
+        <div
+          className="orb-flash-stage bg-white"
+          data-orb-flash-stage
+          aria-hidden="true"
+        />
       </body>
     </html>
   );

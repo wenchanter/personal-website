@@ -18,7 +18,7 @@ function AnimatedCharacters({ text, target }: AnimatedCharactersProps) {
     <span aria-hidden="true" className="whitespace-pre">
       {Array.from(text).map((character, index) => (
         <span
-          className="inline-block"
+          className={`inline-block ${target === "name" ? "profile-name-character" : ""}`}
           data-profile-character={target}
           key={`${character}-${index}`}
         >
@@ -57,6 +57,12 @@ export default function AnimatedProfileHeading({
     }
 
     const context = gsap.context(() => {
+      gsap.set(nameCharacters, {
+        autoAlpha: 0,
+        willChange: "transform, opacity",
+        x: "-0.7em",
+      });
+
       gsap
         .timeline({
           defaults: {
@@ -64,23 +70,16 @@ export default function AnimatedProfileHeading({
             ease: "power2.out",
           },
         })
-        .fromTo(
+        .to(
           nameCharacters,
-          {
-            autoAlpha: 0,
-            x: "-0.7em",
-            willChange: "transform, opacity",
-          },
           {
             autoAlpha: 1,
             x: 0,
             stagger: 0.075,
-            force3D: true,
+            force3D: false,
           },
         )
-        .set(nameCharacters, {
-          clearProps: "transform,opacity,visibility,willChange",
-        });
+        .set(nameCharacters, { willChange: "auto" });
 
       gsap.set(roleGroups, { autoAlpha: 0 });
 

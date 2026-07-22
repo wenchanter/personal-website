@@ -59,6 +59,10 @@ export default function SkillShow() {
       "[data-skill-background]",
     );
     const orbTarget = section.querySelector<HTMLElement>("[data-orb-target]");
+    const orbBurst = document.querySelector<HTMLElement>("[data-orb-burst]");
+    const orbFlashStage = document.querySelector<HTMLElement>(
+      "[data-orb-flash-stage]",
+    );
     const spheres = section.querySelectorAll<HTMLElement>(
       "[data-converging-orb]",
     );
@@ -67,6 +71,8 @@ export default function SkillShow() {
       !summary ||
       !background ||
       !orbTarget ||
+      !orbBurst ||
+      !orbFlashStage ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       return;
@@ -84,13 +90,18 @@ export default function SkillShow() {
         effectsRevealStart + backgroundRevealDuration;
       const travelDuration = 1.15;
       const sphereStagger = 0.58;
-      const introPinnedDistance = () =>
-        Math.round(Math.min(320, window.innerHeight * 0.35));
+      const orbRestingScale = 0.7;
+      const orbFinalScale = 1.5;
+      const orbGrowthDuration = 0.22;
+      const postConvergenceTailDuration = 0.32;
+      const orbScaleStep =
+        spheres.length > 0
+          ? (orbFinalScale - orbRestingScale) / spheres.length
+          : 0;
 
       gsap.set(titleCharacters, {
         autoAlpha: 0,
         filter: "blur(12px)",
-        willChange: "transform, filter, opacity",
         y: "-0.7em",
       });
       gsap.set(summary, {
@@ -108,13 +119,24 @@ export default function SkillShow() {
         scale: 0.06,
         willChange: "transform, opacity",
       });
+      gsap.set(orbBurst, {
+        opacity: 0,
+        scale: 0.06,
+        visibility: "visible",
+        xPercent: -50,
+        yPercent: -50,
+      });
+      gsap.set(orbFlashStage, { opacity: 0 });
 
       const entranceTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: skillsStrip ?? section,
-          start: skillsStrip ? "top 280px" : "top 360px",
+          start: () =>
+            skillsStrip
+              ? `top ${Math.round(Math.min(520, window.innerHeight * 0.62))}px`
+              : "top 520px",
           endTrigger: section,
-          end: () => `top top-=${introPinnedDistance()}`,
+          end: "top top",
           scrub: 0.45,
           invalidateOnRefresh: true,
         },
@@ -128,7 +150,7 @@ export default function SkillShow() {
             duration: characterDuration,
             ease: "power2.out",
             filter: "blur(0px)",
-            force3D: true,
+            force3D: false,
             stagger: characterStagger,
             y: 0,
           },
@@ -144,19 +166,20 @@ export default function SkillShow() {
           },
           0,
         )
-        .set(titleCharacters, { willChange: "auto" })
+        .set(titleCharacters, { clearProps: "filter,transform" })
         .set(summary, { willChange: "auto" }, "<");
 
       const effectsTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          end: () => `+=${window.innerHeight * 4.4}`,
+          end: () => `+=${window.innerHeight * 5.3}`,
           pin: true,
           pinSpacing: true,
-          scrub: 0.5,
+          scrub: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          refreshPriority: 10,
         },
       });
 
@@ -176,13 +199,13 @@ export default function SkillShow() {
           {
             autoAlpha: 1,
             duration: backgroundRevealDuration,
-            ease: "back.out(1.35)",
+            ease: "power3.out",
             force3D: true,
-            scale: 1,
+            scale: orbRestingScale,
           },
           effectsRevealStart,
         )
-        .set([background, orbTarget], { willChange: "auto" });
+        .set(background, { willChange: "auto" });
 
       spheres.forEach((sphere, index) => {
         const path = approachPaths[index];
@@ -241,6 +264,16 @@ export default function SkillShow() {
               scale: 0.04,
             },
             startAt + travelDuration - 0.28,
+          )
+          .to(
+            orbTarget,
+            {
+              duration: orbGrowthDuration,
+              ease: "power2.out",
+              force3D: true,
+              scale: orbRestingScale + orbScaleStep * (index + 1),
+            },
+            startAt + travelDuration - orbGrowthDuration,
           );
       });
 
@@ -249,15 +282,87 @@ export default function SkillShow() {
         (spheres.length - 1) * sphereStagger +
         travelDuration;
 
-      effectsTimeline.to(
-        spheres,
-        {
-          autoAlpha: 0,
-          duration: 0.18,
-          ease: "none",
+      effectsTimeline
+        .to(
+          orbTarget,
+          {
+            autoAlpha: 0,
+            duration: 0.32,
+            ease: "power2.out",
+            force3D: true,
+            scale: orbFinalScale * 1.12,
+          },
+          finalSphereEnd + 0.1,
+        )
+        .to(
+          {},
+          // Preserve the established pinned pacing after the orb disappears.
+          { duration: postConvergenceTailDuration },
+          finalSphereEnd + 0.42,
+        )
+        .set(orbTarget, { willChange: "auto" });
+
+      const burstLeadDistance = 0.76;
+      const flashFadeInDistance = 0.18;
+      const flashHoldDistance = 0.48;
+      const flashFadeOutDistance = 0.59;
+      const flashFadeInStart = burstLeadDistance - flashFadeInDistance;
+      const flashTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: document.documentElement,
+          start: () =>
+            (effectsTimeline.scrollTrigger?.end ?? 0) -
+            window.innerHeight * burstLeadDistance,
+          end: () =>
+            (effectsTimeline.scrollTrigger?.end ?? 0) +
+            window.innerHeight *
+              (flashHoldDistance + flashFadeOutDistance),
+          scrub: true,
+          invalidateOnRefresh: true,
+          refreshPriority: -10,
         },
-        finalSphereEnd,
-      );
+      });
+
+      flashTimeline
+        .to(
+          orbBurst,
+          {
+            duration: 0.74,
+            ease: "power3.in",
+            force3D: true,
+            opacity: 1,
+            scale: 42,
+          },
+          0,
+        )
+        .to(
+          orbBurst,
+          {
+            duration: flashFadeInDistance,
+            ease: "none",
+            opacity: 0,
+          },
+          flashFadeInStart,
+        )
+        .to(
+          orbFlashStage,
+          {
+            duration: flashFadeInDistance,
+            ease: "none",
+            opacity: 1,
+          },
+          flashFadeInStart,
+        )
+        .to(orbFlashStage, {
+          duration: flashHoldDistance,
+          ease: "none",
+          opacity: 1,
+        })
+        .to(orbFlashStage, {
+          duration: flashFadeOutDistance,
+          ease: "none",
+          opacity: 0,
+        });
     }, section);
 
     return () => context.revert();
@@ -271,7 +376,7 @@ export default function SkillShow() {
     >
       <div className="relative mx-auto flex h-full max-w-6xl flex-col items-center text-center">
         <p
-          className="pointer-events-none absolute top-18 left-1/2 w-[100vw] max-w-7.2xl -translate-x-1/2 text-[clamp(3.7rem,9.5vw,7.5rem)] leading-[0.84] font-bold tracking-[-0.075em] text-balance text-zinc-950/[0.3] blur-[9px] select-none dark:text-white/[0.2]"
+          className="pointer-events-none absolute top-18 left-1/2 w-[100vw] max-w-7.2xl -translate-x-1/2 text-[clamp(3.7rem,9.5vw,7.5rem)] leading-[0.84] font-bold tracking-[-0.075em] text-balance text-zinc-950/[0.32] blur-[9px] select-none dark:text-white/[0.3]"
           data-skill-background
           aria-hidden="true"
         >
