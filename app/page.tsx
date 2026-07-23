@@ -1,4 +1,5 @@
 import CanvasDecorations from "@/app/components/home/CanvasDecorations";
+import Contact from "@/app/components/home/Contact";
 import Hero from "@/app/components/home/Hero";
 import SkillShow from "@/app/components/home/SkillShow";
 import SkillsStrip from "@/app/components/home/SkillsStrip";
@@ -18,6 +19,7 @@ export default function Home() {
       <SkillsStrip />
       <SkillShow />
       <WorkHistory />
+      <Contact />
       <WritingPreview />
     </main>
   );

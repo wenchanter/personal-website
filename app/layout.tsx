@@ -6,6 +6,35 @@ import SmoothScroll from "@/app/components/layout/SmoothScroll";
 
 import "./globals.css";
 
+const initialScrollGuard = `
+(() => {
+  const hash = window.location.hash;
+  const isHeroEntry =
+    hash === "" || hash === "#home" || hash === "#main-content";
+
+  if ("scrollRestoration" in window.history) {
+    window.history.scrollRestoration = isHeroEntry ? "manual" : "auto";
+  }
+
+  if (!isHeroEntry) {
+    return;
+  }
+
+  const resetToHero = () => {
+    document.documentElement.scrollTop = 0;
+
+    if (document.body) {
+      document.body.scrollTop = 0;
+    }
+
+    window.scrollTo(0, 0);
+  };
+
+  resetToHero();
+  window.addEventListener("pageshow", resetToHero, { once: true });
+})();
+`;
+
 export const metadata: Metadata = {
   title: "Zhang Wei - Software Architect",
   description:
@@ -31,6 +60,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: initialScrollGuard }} />
+      </head>
       <body className="flex min-h-full flex-col">
         <Link
           className="fixed top-3 left-3 z-[60] -translate-y-20 rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition-transform focus:translate-y-0 dark:bg-zinc-100 dark:text-zinc-950"

@@ -35,8 +35,11 @@ const workCardThemes = {
 
 export default function WorkHistory() {
   const rootRef = useRef<HTMLElement>(null);
+  const companyNavRef = useRef<HTMLElement>(null);
   const cardStackRef = useRef<HTMLDivElement>(null);
+  const cardAnchorRefs = useRef<Array<HTMLDivElement | null>>([]);
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
+  const scrollTweenRef = useRef<gsap.core.Tween | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useLayoutEffect(() => {
@@ -65,14 +68,29 @@ export default function WorkHistory() {
       });
     }, root);
 
-    return () => context.revert();
+    const stopAutoScroll = () => {
+      scrollTweenRef.current?.kill();
+      scrollTweenRef.current = null;
+    };
+
+    window.addEventListener("wheel", stopAutoScroll, { passive: true });
+    window.addEventListener("touchstart", stopAutoScroll, { passive: true });
+
+    return () => {
+      stopAutoScroll();
+      window.removeEventListener("wheel", stopAutoScroll);
+      window.removeEventListener("touchstart", stopAutoScroll);
+      context.revert();
+    };
   }, []);
 
   const scrollToPosition = (index: number) => {
     const card = cardRefs.current[index];
+    const cardAnchor = cardAnchorRefs.current[index];
     const cardStack = cardStackRef.current;
+    const companyNav = companyNavRef.current;
 
-    if (!card || !cardStack) {
+    if (!card || !cardAnchor || !cardStack || !companyNav) {
       return;
     }
 
@@ -80,11 +98,56 @@ export default function WorkHistory() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const stackTop = window.scrollY + cardStack.getBoundingClientRect().top;
-    const targetTop = stackTop + card.offsetTop - window.innerHeight / 3;
+    const stickyTop = Number.parseFloat(window.getComputedStyle(card).top) || 0;
+    const navStickyTop =
+      Number.parseFloat(window.getComputedStyle(companyNav).top) || stickyTop;
+    const alignmentTop = window.matchMedia("(min-width: 64rem)").matches
+      ? navStickyTop
+      : stickyTop;
+    const maxScroll =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const targetTop = gsap.utils.clamp(
+      0,
+      maxScroll,
+      stackTop + cardAnchor.offsetTop - alignmentTop,
+    );
 
-    window.scrollTo({
-      top: targetTop,
-      behavior: reducedMotion ? "auto" : "smooth",
+    window.history.replaceState(
+      null,
+      "",
+      `#work-position-${profile.workHistory[index].id}`,
+    );
+
+    scrollTweenRef.current?.kill();
+
+    if (reducedMotion) {
+      window.scrollTo({ top: targetTop, behavior: "auto" });
+      setActiveIndex(index);
+      ScrollTrigger.update();
+      return;
+    }
+
+    const scrollDistance = Math.abs(targetTop - window.scrollY);
+    const viewportDistance = scrollDistance / window.innerHeight;
+    const duration = gsap.utils.clamp(0.5, 1.8, viewportDistance * 0.3);
+    const scrollPosition = { value: window.scrollY };
+
+    scrollTweenRef.current = gsap.to(scrollPosition, {
+      value: targetTop,
+      duration,
+      ease: "power2.inOut",
+      overwrite: "auto",
+      onUpdate: () => {
+        window.scrollTo(0, scrollPosition.value);
+        ScrollTrigger.update();
+      },
+      onComplete: () => {
+        scrollTweenRef.current = null;
+        ScrollTrigger.update();
+      },
+      onInterrupt: () => {
+        scrollTweenRef.current = null;
+      },
     });
   };
 
@@ -101,9 +164,9 @@ export default function WorkHistory() {
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto max-w-7xl">
+      <div className="relative mx-auto max-w-6xl">
         <p className="font-mono text-sm font-semibold tracking-[0.24em] text-brand uppercase sm:text-base">
-          Work history · 工作经历
+          Work history
         </p>
         <h2
           className="mt-4 text-[clamp(2.5rem,5.5vw,4.75rem)] leading-[0.96] font-extrabold tracking-[-0.06em] text-zinc-950 dark:text-zinc-100"
@@ -114,7 +177,8 @@ export default function WorkHistory() {
 
         <div className="mt-12 items-start lg:mt-16 lg:grid lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-0">
           <nav
-            className="sticky top-20 z-30 flex overflow-x-auto rounded-xl border border-zinc-950/10 bg-white/94 shadow-[0_18px_50px_rgba(24,24,27,0.08)] backdrop-blur-md lg:top-24 lg:h-[38rem] lg:flex-col lg:overflow-hidden lg:rounded-r-none dark:border-white/12 dark:bg-zinc-900/94 dark:shadow-[0_18px_50px_rgba(0,0,0,0.24)]"
+            ref={companyNavRef}
+            className="sticky top-20 z-30 flex overflow-x-auto rounded-xl border border-zinc-950/10 bg-white/94 shadow-[0_18px_50px_rgba(24,24,27,0.08)] backdrop-blur-md lg:top-24 lg:h-[42rem] lg:flex-col lg:overflow-hidden lg:rounded-r-none xl:h-[38rem] dark:border-white/12 dark:bg-zinc-900/94 dark:shadow-[0_18px_50px_rgba(0,0,0,0.24)]"
             aria-label="Work history companies"
           >
             {profile.workHistory.map((position, index) => {
@@ -122,15 +186,19 @@ export default function WorkHistory() {
               const theme = workCardThemes[position.tone];
 
               return (
-                <button
-                  className={`group relative flex min-w-[13rem] flex-1 items-center gap-4 border-r border-zinc-950/8 px-5 py-5 text-left transition-colors last:border-r-0 lg:min-h-0 lg:w-full lg:border-r-0 lg:border-b lg:px-7 lg:py-6 lg:last:border-b-0 dark:border-white/10 ${
+                <a
+                  className={`group relative flex min-w-[13rem] flex-1 cursor-pointer items-center gap-4 border-r border-zinc-950/8 px-5 py-5 text-left transition-colors last:border-r-0 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-brand lg:min-h-0 lg:w-full lg:border-r-0 lg:border-b lg:px-7 lg:py-6 lg:last:border-b-0 dark:border-white/10 ${
                     isActive
                       ? ""
                       : "bg-transparent hover:bg-zinc-950/[0.025] dark:hover:bg-white/[0.035]"
                   }`}
-                  type="button"
+                  href={`#work-position-${position.id}`}
                   aria-current={isActive ? "step" : undefined}
-                  onClick={() => scrollToPosition(index)}
+                  aria-controls={`work-position-${position.id}`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    scrollToPosition(index);
+                  }}
                   key={position.id}
                   style={
                     isActive
@@ -170,7 +238,7 @@ export default function WorkHistory() {
                   >
                     ›
                   </span>
-                </button>
+                </a>
               );
             })}
           </nav>
@@ -191,11 +259,18 @@ export default function WorkHistory() {
 
               return (
                 <Fragment key={position.id}>
+                  <div
+                    ref={(element) => {
+                      cardAnchorRefs.current[index] = element;
+                    }}
+                    className="h-0"
+                    aria-hidden="true"
+                  />
                   <article
                     ref={(element) => {
                       cardRefs.current[index] = element;
                     }}
-                    className="sticky top-36 flex min-h-[36rem] flex-col overflow-hidden rounded-2xl border bg-white/98 shadow-[0_24px_70px_rgba(24,24,27,0.12)] lg:top-24 lg:min-h-[38rem] lg:rounded-l-none dark:bg-zinc-900/98 dark:shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
+                    className="sticky top-36 flex min-h-[36rem] scroll-mt-[33vh] flex-col overflow-hidden rounded-2xl border bg-white/98 shadow-[0_24px_70px_rgba(24,24,27,0.12)] lg:top-24 lg:h-[42rem] lg:min-h-0 lg:rounded-l-none xl:h-[38rem] dark:bg-zinc-900/98 dark:shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
                     id={`work-position-${position.id}`}
                     style={{
                       borderColor: `${theme.accent}33`,

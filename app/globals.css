@@ -110,6 +110,45 @@ body {
     opacity: 0;
     transform: translateX(-0.7em);
   }
+
+  .profile-signals-reveal {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  [data-role-group] {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  [data-profile-character="role"] {
+    display: none;
+  }
+
+  [data-skill-title-character] {
+    visibility: hidden;
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(-0.7em);
+  }
+
+  [data-skill-summary] {
+    visibility: hidden;
+    opacity: 0;
+    filter: blur(14px);
+  }
+
+  [data-skill-background] {
+    visibility: hidden;
+    opacity: 0;
+    filter: blur(28px);
+  }
+
+  [data-orb-target] {
+    visibility: hidden;
+    opacity: 0;
+  }
 }
 
 @keyframes skills-marquee-scroll {
@@ -249,6 +288,9 @@ body {
 }
 
 .converging-orb {
+  --orb-accent: 37 99 235;
+  --orb-tint: 14 165 233;
+
   position: absolute;
   bottom: clamp(3.625rem, 6.5vw, 4.625rem);
   left: 50%;
@@ -259,17 +301,69 @@ body {
   border: 0;
   border-radius: 999px;
   opacity: 0;
-  background: radial-gradient(
-    circle at 29% 23%,
-    rgb(255 255 255 / 0.98) 0 10%,
-    rgb(255 255 255 / 0.9) 26%,
-    rgb(244 244 245 / 0.74) 46%,
-    rgb(161 161 170 / 0.46) 68%,
-    rgb(63 63 70 / 0.48) 86%,
-    rgb(24 24 27 / 0.6) 100%
-  );
-  box-shadow: 0 16px 34px rgb(24 24 27 / 0.15);
+  background:
+    radial-gradient(
+      circle at 28% 22%,
+      rgb(255 255 255 / 0.78) 0 5%,
+      rgb(255 255 255 / 0.24) 13%,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 72% 78%,
+      rgb(var(--orb-accent) / 0.42) 0,
+      rgb(var(--orb-tint) / 0.22) 38%,
+      transparent 68%
+    ),
+    radial-gradient(
+      circle at 44% 40%,
+      rgb(255 255 255 / 0.08) 0 42%,
+      rgb(var(--orb-tint) / 0.18) 64%,
+      rgb(var(--orb-accent) / 0.46) 100%
+    );
+  box-shadow:
+    0 18px 38px rgb(var(--orb-tint) / 0.13),
+    0 4px 12px rgb(24 24 27 / 0.06);
   will-change: transform, opacity;
+}
+
+.converging-orb:nth-child(2) {
+  --orb-accent: 5 150 105;
+  --orb-tint: 45 212 191;
+}
+
+.converging-orb:nth-child(3) {
+  --orb-accent: 225 29 72;
+  --orb-tint: 251 113 133;
+}
+
+.converging-orb:nth-child(4) {
+  --orb-accent: 2 132 199;
+  --orb-tint: 34 211 238;
+}
+
+.converging-orb:nth-child(5) {
+  --orb-accent: 109 40 217;
+  --orb-tint: 167 139 250;
+}
+
+.converging-orb:nth-child(6) {
+  --orb-accent: 39 39 42;
+  --orb-tint: 113 113 122;
+}
+
+.converging-orb:nth-child(7) {
+  --orb-accent: 3 105 161;
+  --orb-tint: 56 189 248;
+}
+
+.converging-orb:nth-child(8) {
+  --orb-accent: 245 158 11;
+  --orb-tint: 253 230 138;
+}
+
+.converging-orb:nth-child(9) {
+  --orb-accent: 8 145 178;
+  --orb-tint: 103 232 249;
 }
 
 .converging-orb::before {
@@ -317,9 +411,9 @@ body {
     transparent 0 8%,
     rgb(255 255 255 / 0.72) 14%,
     transparent 23% 58%,
-    rgb(24 24 27 / 0.28) 70%,
+    rgb(var(--orb-accent) / 0.72) 70%,
     transparent 82% 94%,
-    rgb(255 255 255 / 0.5) 98%,
+    rgb(var(--orb-tint) / 0.78) 98%,
     transparent 100%
   );
   content: "";
@@ -395,7 +489,9 @@ body {
   }
 
   .converging-orb {
-    box-shadow: 0 16px 34px rgb(0 0 0 / 0.26);
+    box-shadow:
+      0 18px 38px rgb(var(--orb-tint) / 0.18),
+      0 4px 12px rgb(0 0 0 / 0.18);
   }
 }
 
@@ -434,6 +530,49 @@ body {
     visibility: visible;
     opacity: 1;
     transform: none;
+  }
+
+  .profile-signals-reveal,
+  [data-skill-title-character] {
+    visibility: visible;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  [data-skill-summary] {
+    visibility: visible;
+    opacity: 1;
+    filter: none;
+  }
+
+  [data-skill-background] {
+    visibility: visible;
+    opacity: 1;
+    filter: blur(9px);
+  }
+
+  [data-orb-target] {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  [data-role-group] {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  [data-role-group]:first-child {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  [data-profile-character="role"] {
+    display: inline-block;
+  }
+
+  [data-role-cursor] {
+    display: none;
   }
 
   .skills-marquee {

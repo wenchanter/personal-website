@@ -36,7 +36,7 @@ export default function ProfileSignals({ signals }: ProfileSignalsProps) {
           duration: 3.0,
           ease: "power3.out",
           force3D: true,
-          clearProps: "transform,opacity,visibility,willChange",
+          clearProps: "willChange",
         },
       );
     }, root);
@@ -47,7 +47,7 @@ export default function ProfileSignals({ signals }: ProfileSignalsProps) {
   return (
     <ul
       ref={rootRef}
-      className="mb-7 flex max-w-full flex-wrap items-center justify-center font-mono text-[0.7rem] font-semibold tracking-[0.16em] text-brand uppercase sm:mb-9 sm:text-xs sm:tracking-[0.2em]"
+      className="profile-signals-reveal mb-7 flex max-w-full flex-wrap items-center justify-center font-mono text-[0.7rem] font-semibold tracking-[0.16em] text-brand uppercase sm:mb-9 sm:text-xs sm:tracking-[0.2em]"
       aria-label="Professional summary"
     >
       {signals.map((signal) => (

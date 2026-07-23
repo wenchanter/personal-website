@@ -168,7 +168,7 @@ export default function SkillShow() {
           },
           0,
         )
-        .set(titleCharacters, { clearProps: "filter,transform" })
+        .set(titleCharacters, { willChange: "auto" })
         .set(summary, { willChange: "auto" }, "<");
 
       const effectsTimeline = gsap.timeline({
