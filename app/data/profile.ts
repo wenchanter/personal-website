@@ -16,6 +16,9 @@ export type WorkHistoryItem = {
   endYear: string;
   role: string;
   summary: string;
+  logo: string;
+  technologies: readonly string[];
+  tone: "blue" | "orange" | "rose" | "red" | "sky";
 };
 
 export const profile = {
@@ -46,6 +49,16 @@ export const profile = {
       role: "Senior Software Architect",
       summary:
         "Led architecture design for core business systems. Drove microservice transformation for high-concurrency traffic and established cross-team engineering standards.",
+      logo: "/logos/bytedance.svg",
+      technologies: [
+        "Java",
+        "Spring Cloud",
+        "Kubernetes",
+        "Kafka",
+        "gRPC",
+        "Redis",
+      ],
+      tone: "blue",
     },
     {
       id: "alibaba",
@@ -56,6 +69,16 @@ export const profile = {
       role: "Staff Software Engineer",
       summary:
         "Designed distributed commerce services, improved platform reliability, and helped engineering teams turn complex domain requirements into maintainable systems.",
+      logo: "/logos/alibaba.svg",
+      technologies: [
+        "Java",
+        "DDD",
+        "CQRS",
+        "MySQL",
+        "Elasticsearch",
+        "Docker",
+      ],
+      tone: "orange",
     },
     {
       id: "netease",
@@ -66,6 +89,9 @@ export const profile = {
       role: "Senior Software Engineer",
       summary:
         "Built scalable backend platforms and data-intensive services, with a focus on performance, service boundaries, and production observability.",
+      logo: "/logos/netease.svg",
+      technologies: ["Java", "Go", "Redis", "WebSocket", "MySQL", "Netty"],
+      tone: "rose",
     },
     {
       id: "yonyou",
@@ -76,6 +102,9 @@ export const profile = {
       role: "Software Engineer",
       summary:
         "Developed enterprise software modules and integrations, translating operational workflows into dependable Java services and reusable platform capabilities.",
+      logo: "/logos/yonyou.png",
+      technologies: ["Java", "Spring", "Oracle", "MyBatis", "JSF", "SOA"],
+      tone: "red",
     },
     {
       id: "ntt-data",
@@ -86,6 +115,9 @@ export const profile = {
       role: "Java Engineer",
       summary:
         "Started building production Java applications for large organisations, developing a durable foundation in testing, delivery, and systems thinking.",
+      logo: "/logos/ntt-data.svg",
+      technologies: ["Java", "COBOL", "Oracle", "SOAP", "XML", "Agile"],
+      tone: "sky",
     },
   ],
 } as const satisfies Profile;

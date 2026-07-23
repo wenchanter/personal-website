@@ -5,43 +5,75 @@ import FlowingOrb from "@/app/components/home/FlowingOrb";
 export const approachPaths = [
   {
     className: "converging-orb-large",
-    fromX: "-38vw",
-    fromY: "-46vh",
+    fromX: "-48vw",
+    fromY: "-44vh",
     icon: "/icons/java.svg",
     label: "Java",
     rotation: -72,
   },
   {
     className: "converging-orb-medium",
-    fromX: "37vw",
-    fromY: "-40vh",
+    fromX: "48vw",
+    fromY: "-38vh",
     icon: "/icons/spring.svg",
     label: "Spring",
     rotation: 84,
   },
   {
     className: "converging-orb-small",
-    fromX: "-40vw",
-    fromY: "-14vh",
+    fromX: "-54vw",
+    fromY: "-10vh",
     icon: "/icons/redis.svg",
     label: "Redis",
     rotation: -48,
   },
   {
     className: "converging-orb-large",
-    fromX: "39vw",
-    fromY: "-4vh",
+    fromX: "45vw",
+    fromY: "34vh",
     icon: "/icons/mysql.svg",
     label: "MySQL",
     rotation: 66,
   },
   {
     className: "converging-orb-medium",
-    fromX: "-30vw",
-    fromY: "20vh",
+    fromX: "-40vmin",
+    fromY: "-48vmin",
     icon: "/icons/kafka.svg",
     label: "Apache Kafka",
     rotation: -94,
+  },
+  {
+    className: "converging-orb-small",
+    fromX: "16vw",
+    fromY: "-52vh",
+    icon: "/icons/nextjs.svg",
+    label: "Next.js",
+    rotation: 58,
+  },
+  {
+    className: "converging-orb-large",
+    fromX: "-46vw",
+    fromY: "36vh",
+    icon: "/icons/docker.svg",
+    label: "Docker",
+    rotation: -108,
+  },
+  {
+    className: "converging-orb-medium",
+    fromX: "52vw",
+    fromY: "-20vh",
+    icon: "/icons/ddd.png",
+    label: "Domain-Driven Design",
+    rotation: 112,
+  },
+  {
+    className: "converging-orb-large",
+    fromX: "-22vw",
+    fromY: "-60vh",
+    icon: "/icons/go.svg",
+    label: "Go",
+    rotation: -62,
   },
 ] as const;
 
@@ -58,7 +90,9 @@ export default function OrbConvergence() {
           key={`${path.fromX}-${path.fromY}-${index}`}
         >
           <Image
-            className="converging-orb-icon"
+            className={`converging-orb-icon ${
+              path.label === "Domain-Driven Design" ? "scale-[1.8]" : ""
+            }`}
             src={path.icon}
             alt={path.label}
             width={160}

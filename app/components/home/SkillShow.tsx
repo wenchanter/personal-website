@@ -90,6 +90,8 @@ export default function SkillShow() {
         effectsRevealStart + backgroundRevealDuration;
       const travelDuration = 1.15;
       const sphereStagger = 0.58;
+      const pinnedScrollScreens =
+        5.3 + Math.max(0, spheres.length - 5) * sphereStagger;
       const orbRestingScale = 0.7;
       const orbFinalScale = 1.5;
       const orbGrowthDuration = 0.22;
@@ -173,7 +175,7 @@ export default function SkillShow() {
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          end: () => `+=${window.innerHeight * 5.3}`,
+          end: () => `+=${window.innerHeight * pinnedScrollScreens}`,
           pin: true,
           pinSpacing: true,
           scrub: true,
