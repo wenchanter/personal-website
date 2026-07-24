@@ -4,9 +4,8 @@ import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import OrbConvergence, {
-  approachPaths,
-} from "@/app/components/home/OrbConvergence";
+import OrbConvergence from "@/app/components/home/OrbConvergence";
+import { approachPaths } from "@/app/data/orbs";
 
 const statement = "Complex systems should feel simple to use.";
 

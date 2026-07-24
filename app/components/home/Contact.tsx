@@ -1,31 +1,15 @@
-import { profile } from "@/app/data/profile";
-
-const contactSkillGroups = [
-  {
-    label: "Java · Go · Python",
-    className:
-      "border-emerald-500/25 bg-emerald-500/[0.035] text-emerald-600 dark:border-emerald-400/25 dark:text-emerald-400",
-  },
-  {
-    label: "Spring Cloud · Kubernetes",
-    className:
-      "border-blue-500/25 bg-blue-500/[0.035] text-blue-500 dark:border-blue-400/25 dark:text-blue-400",
-  },
-  {
-    label: "Next.js · React",
-    className:
-      "border-violet-500/25 bg-violet-500/[0.035] text-violet-500 dark:border-violet-400/25 dark:text-violet-400",
-  },
-] as const;
+import ContactBallPit from "@/app/components/home/ContactBallPit";
 
 export default function Contact() {
   return (
     <section
-      className="relative z-10 bg-stone-50 px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-36 dark:bg-zinc-950"
+      className="relative z-10 overflow-hidden bg-stone-50 px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-36 dark:bg-zinc-950"
       id="contact"
       aria-labelledby="contact-heading"
     >
-      <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:gap-20 xl:gap-24">
+      <ContactBallPit />
+
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:gap-20 xl:gap-24">
         <header>
           <p className="font-mono text-sm font-semibold tracking-[0.24em] text-brand uppercase sm:text-base">
             Contact · Get in touch
@@ -73,33 +57,6 @@ export default function Contact() {
               behind them.
             </p>
           </div>
-
-          <ul
-            className="mt-10 flex flex-wrap gap-3"
-            aria-label="Core technology groups"
-          >
-            {contactSkillGroups.map((group) => (
-              <li
-                className={`rounded-sm border px-4 py-3 font-mono text-sm font-semibold tracking-[0.025em] sm:px-5 sm:text-base ${group.className}`}
-                key={group.label}
-              >
-                {group.label}
-              </li>
-            ))}
-          </ul>
-
-          <a
-            className="group mt-10 inline-flex items-center gap-4 border-b border-zinc-950/20 pb-2 text-xl font-bold tracking-[-0.025em] text-zinc-950 transition-colors hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:text-2xl dark:border-white/25 dark:text-zinc-100 dark:hover:border-brand dark:hover:text-brand"
-            href={`mailto:${profile.email}`}
-          >
-            {profile.email}
-            <span
-              className="transition-transform duration-200 group-hover:translate-x-1"
-              aria-hidden="true"
-            >
-              ↗
-            </span>
-          </a>
         </div>
       </div>
     </section>

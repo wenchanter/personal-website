@@ -161,6 +161,21 @@ body {
   }
 }
 
+@keyframes contact-ball-canvas-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.contact-ball-canvas {
+  opacity: 0;
+  animation: contact-ball-canvas-in 0.65s ease forwards;
+}
+
 .skills-marquee {
   -webkit-mask-image: linear-gradient(
     to right,
@@ -516,6 +531,11 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .contact-ball-canvas {
+    opacity: 1;
+    animation: none;
+  }
+
   .nav-scroll-glass {
     transition: none;
   }
