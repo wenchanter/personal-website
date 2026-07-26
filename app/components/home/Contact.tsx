@@ -3,7 +3,7 @@ import ContactBallPit from "@/app/components/home/ContactBallPit";
 export default function Contact() {
   return (
     <section
-      className="relative z-10 overflow-hidden bg-stone-50 px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-36 dark:bg-zinc-950"
+      className="relative z-10 overflow-hidden bg-stone-50 px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-20 dark:bg-zinc-950"
       id="contact"
       aria-labelledby="contact-heading"
     >
@@ -15,7 +15,7 @@ export default function Contact() {
             Contact · Get in touch
           </p>
           <h2
-            className="mt-7 max-w-[14ch] text-[clamp(3rem,3.35vw,3.75rem)] leading-[1.02] font-extrabold tracking-[-0.055em] text-zinc-950 dark:text-zinc-100"
+            className="mt-7 max-w-[14ch] text-[clamp(3.1rem,3.6vw,4rem)] leading-[1.02] font-extrabold tracking-[-0.055em] text-zinc-950 dark:text-zinc-100"
             id="contact-heading"
           >
             Architecting systems that{" "}

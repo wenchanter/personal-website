@@ -11,9 +11,14 @@ type BallBody = {
   velocity: THREE.Vector3;
   phase: number;
   entryFrom: THREE.Vector3;
+  entryBaseTarget: THREE.Vector3;
   entryTarget: THREE.Vector3;
   entryArc: THREE.Vector3;
+  entryPreviousPosition: THREE.Vector3;
+  entryExitVelocity: THREE.Vector3;
   entryDelay: number;
+  hasEntered: boolean;
+  collisionWeight: number;
 };
 
 const additionalBallColors = [
@@ -44,6 +49,10 @@ const ballSpecs = [
 const MAX_DELTA = 1 / 30;
 const ENTRY_DURATION = 1.05;
 const ENTRY_STAGGER = 0.055;
+const ENTRY_VELOCITY_SAMPLE_END = 0.82;
+const COLLISION_HANDOFF_DURATION = 0.18;
+const TARGET_GAP = 0.06;
+const TARGET_RELAXATION_PASSES = 64;
 
 const entryDirections = [
   new THREE.Vector2(-1, -0.72),
@@ -127,7 +136,7 @@ export default function ContactBallPit() {
     const textures: THREE.Texture[] = [];
 
     ballSpecs.forEach((spec, index) => {
-      const radius = 0.46 + (index % 5) * 0.07;
+      const radius = 0.53 + (index % 5) * 0.08;
       const material = new THREE.MeshPhysicalMaterial({
         color: spec.tint,
         emissive: spec.accent,
@@ -188,18 +197,26 @@ export default function ContactBallPit() {
         mesh,
         radius,
         velocity: new THREE.Vector3(
-          Math.sin(index * 1.73) * 0.32,
-          Math.cos(index * 1.21) * 0.28,
-          Math.sin(index * 0.91) * 0.09,
+          Math.sin(index * 1.73) * 0.68,
+          Math.cos(index * 1.21) * 0.6,
+          Math.sin(index * 0.91) * 0.17,
         ),
         phase: index * 0.83,
         entryFrom: new THREE.Vector3(),
+        entryBaseTarget: mesh.position.clone(),
         entryTarget: mesh.position.clone(),
         entryArc: new THREE.Vector3(),
+        entryPreviousPosition: new THREE.Vector3(),
+        entryExitVelocity: new THREE.Vector3(),
         entryDelay: index * ENTRY_STAGGER,
+        hasEntered: false,
+        collisionWeight: 0,
       });
     });
 
+    const targetDifference = new THREE.Vector3();
+    const collisionDifference = new THREE.Vector3();
+    const relativeVelocity = new THREE.Vector3();
     const pointer = new THREE.Vector2(100, 100);
     let pointerActive = false;
     let frameId = 0;
@@ -210,6 +227,79 @@ export default function ContactBallPit() {
     let entryStarted = false;
     let entryComplete = false;
     let entryStartTime = 0;
+
+    const layoutEntryTargets = () => {
+      bodies.forEach((body) => {
+        body.entryTarget.copy(body.entryBaseTarget);
+      });
+
+      for (
+        let pass = 0;
+        pass < TARGET_RELAXATION_PASSES;
+        pass += 1
+      ) {
+        for (let index = 0; index < bodies.length; index += 1) {
+          const first = bodies[index];
+
+          for (
+            let otherIndex = index + 1;
+            otherIndex < bodies.length;
+            otherIndex += 1
+          ) {
+            const second = bodies[otherIndex];
+            targetDifference
+              .copy(second.entryTarget)
+              .sub(first.entryTarget);
+            let distance = targetDifference.length();
+            const minimumDistance =
+              first.radius + second.radius + TARGET_GAP;
+
+            if (distance >= minimumDistance) {
+              continue;
+            }
+
+            if (distance < 0.0001) {
+              targetDifference.set(
+                Math.cos(index + otherIndex),
+                Math.sin(index + otherIndex),
+                0.1,
+              );
+              distance = targetDifference.length();
+            }
+
+            const correction =
+              (minimumDistance - distance) / (distance * 2);
+
+            first.entryTarget.addScaledVector(
+              targetDifference,
+              -correction,
+            );
+            second.entryTarget.addScaledVector(
+              targetDifference,
+              correction,
+            );
+          }
+        }
+
+        bodies.forEach((body) => {
+          body.entryTarget.x = THREE.MathUtils.clamp(
+            body.entryTarget.x,
+            -boundsX + body.radius,
+            boundsX - body.radius,
+          );
+          body.entryTarget.y = THREE.MathUtils.clamp(
+            body.entryTarget.y,
+            -boundsY + body.radius,
+            boundsY - body.radius,
+          );
+          body.entryTarget.z = THREE.MathUtils.clamp(
+            body.entryTarget.z,
+            -1.6 + body.radius * 0.2,
+            1.6 - body.radius * 0.2,
+          );
+        });
+      }
+    };
 
     const resize = () => {
       const { width, height } = root.getBoundingClientRect();
@@ -232,6 +322,10 @@ export default function ContactBallPit() {
       boundsY = viewHeight * 0.41;
 
       if (!entryComplete) {
+        if (!entryStarted) {
+          layoutEntryTargets();
+        }
+
         bodies.forEach((body, index) => {
           const direction =
             entryDirections[index % entryDirections.length].clone().normalize();
@@ -262,6 +356,7 @@ export default function ContactBallPit() {
 
           if (!entryStarted) {
             body.mesh.position.copy(body.entryFrom);
+            body.entryPreviousPosition.copy(body.entryFrom);
           }
         });
       }
@@ -271,18 +366,18 @@ export default function ContactBallPit() {
       renderer.render(scene, camera);
     };
 
-    const resolveCollisions = () => {
-      for (let index = 0; index < bodies.length; index += 1) {
-        const first = bodies[index];
+    const resolveCollisions = (activeBodies = bodies) => {
+      for (let index = 0; index < activeBodies.length; index += 1) {
+        const first = activeBodies[index];
 
         for (
           let otherIndex = index + 1;
-          otherIndex < bodies.length;
+          otherIndex < activeBodies.length;
           otherIndex += 1
         ) {
-          const second = bodies[otherIndex];
-          const difference = second.mesh.position
-            .clone()
+          const second = activeBodies[otherIndex];
+          const difference = collisionDifference
+            .copy(second.mesh.position)
             .sub(first.mesh.position);
           const minimumDistance = first.radius + second.radius;
           const distanceSquared = difference.lengthSq();
@@ -297,17 +392,30 @@ export default function ContactBallPit() {
           const distance = Math.sqrt(distanceSquared);
           const normal = difference.multiplyScalar(1 / distance);
           const overlap = minimumDistance - distance;
+          const responseWeight = Math.min(
+            first.collisionWeight,
+            second.collisionWeight,
+          );
 
-          first.mesh.position.addScaledVector(normal, -overlap * 0.5);
-          second.mesh.position.addScaledVector(normal, overlap * 0.5);
+          if (responseWeight <= 0) {
+            continue;
+          }
 
-          const relativeVelocity = second.velocity
-            .clone()
-            .sub(first.velocity);
+          first.mesh.position.addScaledVector(
+            normal,
+            -overlap * 0.5 * responseWeight,
+          );
+          second.mesh.position.addScaledVector(
+            normal,
+            overlap * 0.5 * responseWeight,
+          );
+
+          relativeVelocity.copy(second.velocity).sub(first.velocity);
           const speedAlongNormal = relativeVelocity.dot(normal);
 
           if (speedAlongNormal < 0) {
-            const impulse = -(1.76 * speedAlongNormal) / 2;
+            const impulse =
+              (-(1.76 * speedAlongNormal) / 2) * responseWeight;
             first.velocity.addScaledVector(normal, -impulse);
             second.velocity.addScaledVector(normal, impulse);
           }
@@ -319,6 +427,10 @@ export default function ContactBallPit() {
       const position = body.mesh.position;
       const centerPull = 0.42;
 
+      body.collisionWeight = Math.min(
+        1,
+        body.collisionWeight + delta / COLLISION_HANDOFF_DURATION,
+      );
       body.velocity.x +=
         (-position.x * centerPull +
           Math.sin(elapsed * 0.96 + body.phase) * 0.11) *
@@ -376,8 +488,9 @@ export default function ContactBallPit() {
       body.mesh.rotation.y -= body.velocity.x * delta * 0.18;
     };
 
-    const updateEntry = (time: number) => {
+    const updateEntry = (time: number, delta: number, elapsed: number) => {
       const entryElapsed = (time - entryStartTime) / 1000;
+      const enteredBodies: BallBody[] = [];
       let allArrived = true;
 
       bodies.forEach((body) => {
@@ -388,36 +501,68 @@ export default function ContactBallPit() {
         );
         const easedProgress = 1 - Math.pow(1 - rawProgress, 3);
 
-        body.mesh.position.lerpVectors(
-          body.entryFrom,
-          body.entryTarget,
-          easedProgress,
-        );
-        body.mesh.position.addScaledVector(
-          body.entryArc,
-          Math.sin(Math.PI * easedProgress),
-        );
-        body.mesh.rotation.x += 0.012 + body.phase * 0.00008;
-        body.mesh.rotation.y -= 0.016;
-
         if (rawProgress < 1) {
           allArrived = false;
+          body.mesh.position.lerpVectors(
+            body.entryFrom,
+            body.entryTarget,
+            easedProgress,
+          );
+          body.mesh.position.addScaledVector(
+            body.entryArc,
+            Math.sin(Math.PI * easedProgress),
+          );
+          body.mesh.rotation.x += 0.012 + body.phase * 0.00008;
+          body.mesh.rotation.y -= 0.016;
+
+          if (
+            rawProgress > 0 &&
+            rawProgress <= ENTRY_VELOCITY_SAMPLE_END &&
+            delta > 0
+          ) {
+            body.entryExitVelocity
+              .copy(body.mesh.position)
+              .sub(body.entryPreviousPosition)
+              .multiplyScalar(1 / delta);
+
+            const sampledSpeed = body.entryExitVelocity.length();
+
+            if (sampledSpeed > 0.001) {
+              body.entryExitVelocity
+                .multiplyScalar(1 / sampledSpeed)
+                .multiplyScalar(
+                  THREE.MathUtils.clamp(sampledSpeed, 0.65, 1.1),
+                );
+            }
+          }
+
+          body.entryPreviousPosition.copy(body.mesh.position);
+          return;
         }
+
+        if (!body.hasEntered) {
+          body.hasEntered = true;
+          body.mesh.position.copy(body.entryTarget);
+
+          if (body.entryExitVelocity.lengthSq() > 0.0001) {
+            body.velocity.copy(body.entryExitVelocity);
+          }
+        }
+
+        // Hand each body to physics as soon as its own entrance finishes.
+        // Waiting for every staggered entrance creates a visible pause.
+        enteredBodies.push(body);
+        updateBody(body, delta, elapsed);
       });
+
+      resolveCollisions(enteredBodies);
+      resolveCollisions(enteredBodies);
 
       if (!allArrived) {
         return;
       }
 
       entryComplete = true;
-      bodies.forEach((body, index) => {
-        body.mesh.position.copy(body.entryTarget);
-        body.velocity.set(
-          Math.sin(index * 1.73) * 0.68,
-          Math.cos(index * 1.21) * 0.6,
-          Math.sin(index * 0.91) * 0.17,
-        );
-      });
     };
 
     const renderFrame = (time: number) => {
@@ -430,7 +575,7 @@ export default function ContactBallPit() {
       lastTime = time;
 
       if (!entryComplete) {
-        updateEntry(time);
+        updateEntry(time, delta, elapsed);
       } else {
         bodies.forEach((body) => updateBody(body, delta, elapsed));
         resolveCollisions();
@@ -495,8 +640,14 @@ export default function ContactBallPit() {
       }
 
       const rect = root.getBoundingClientRect();
+      const visibleTop = Math.max(rect.top, 0);
+      const visibleBottom = Math.min(rect.bottom, window.innerHeight);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const availableHeight = Math.min(rect.height, window.innerHeight);
+      const isFullyPresented =
+        availableHeight > 0 && visibleHeight >= availableHeight * 0.96;
 
-      if (rect.top > 1 || rect.bottom <= 0) {
+      if (!isFullyPresented) {
         return;
       }
 

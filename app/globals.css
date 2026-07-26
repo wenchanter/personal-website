@@ -105,6 +105,10 @@ body {
 }
 
 @media (scripting: enabled) {
+  /*
+   * Entrance-animation first-paint contract: animated elements start hidden in
+   * CSS before hydration. GSAP owns the same explicit state after hydration.
+   */
   .profile-name-character {
     visibility: hidden;
     opacity: 0;
@@ -146,6 +150,11 @@ body {
   }
 
   [data-orb-target] {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  [data-converging-orb] {
     visibility: hidden;
     opacity: 0;
   }

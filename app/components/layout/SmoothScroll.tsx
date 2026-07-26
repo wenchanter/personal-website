@@ -28,8 +28,13 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     let refreshFrame: number | null = null;
+    let isDisposed = false;
 
     const queueRefresh = () => {
+      if (isDisposed) {
+        return;
+      }
+
       if (refreshFrame !== null) {
         window.cancelAnimationFrame(refreshFrame);
       }
@@ -39,9 +44,16 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         ScrollTrigger.refresh();
       });
     };
+    const refreshAfterFonts = () => {
+      void document.fonts.ready.then(queueRefresh);
+    };
 
-    const observer = new MutationObserver(queueRefresh);
-    observer.observe(content, { childList: true, subtree: true });
+    // Refresh only at layout-stable lifecycle points. A subtree MutationObserver
+    // must not be used here: absolute-positioned canvases and Strict Mode DOM
+    // remounts do not affect document flow, but refreshing for them can briefly
+    // tear down pinned ScrollTriggers and expose entrance-animation elements.
+    window.addEventListener("load", queueRefresh, { once: true });
+    refreshAfterFonts();
 
     if (reducedMotion || usesNativeSticky) {
       ScrollSmoother.get()?.kill();
@@ -50,11 +62,13 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       queueRefresh();
 
       return () => {
+        isDisposed = true;
+
         if (refreshFrame !== null) {
           window.cancelAnimationFrame(refreshFrame);
         }
 
-        observer.disconnect();
+        window.removeEventListener("load", queueRefresh);
         wrapper.classList.remove("smooth-scroll-wrapper--native");
         content.classList.remove("smooth-scroll-content--native");
       };
@@ -75,13 +89,14 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     queueRefresh();
 
     return () => {
+      isDisposed = true;
+
       if (refreshFrame !== null) {
         window.cancelAnimationFrame(refreshFrame);
       }
 
-      observer.disconnect();
+      window.removeEventListener("load", queueRefresh);
       smoother.kill();
-      ScrollTrigger.refresh();
     };
   }, []);
 

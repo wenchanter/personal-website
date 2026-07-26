@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import AnimatedHeaderShell from "@/app/components/layout/AnimatedHeaderShell";
+import BlogComingSoonButton from "@/app/components/ui/BlogComingSoonButton";
 
 const navigation = [
   { label: "Home", href: "/#home" },
@@ -34,9 +35,18 @@ export default function SiteHeader() {
 
         <nav className="flex items-center gap-0.5" aria-label="Primary navigation">
           {navigation.map((item) => (
-            <Link className={navLinkClass} href={item.href} key={item.href}>
-              {item.label}
-            </Link>
+            item.label === "Blog" ? (
+              <BlogComingSoonButton
+                className={navLinkClass}
+                key={item.href}
+              >
+                {item.label}
+              </BlogComingSoonButton>
+            ) : (
+              <Link className={navLinkClass} href={item.href} key={item.href}>
+                {item.label}
+              </Link>
+            )
           ))}
           <Link
             className="ml-1 inline-flex h-11 items-center justify-center rounded-md bg-zinc-900 px-4 text-sm font-semibold whitespace-nowrap text-stone-50 transition duration-200 hover:-translate-y-0.5 hover:bg-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-px dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-brand dark:hover:text-white sm:ml-2 sm:px-5"

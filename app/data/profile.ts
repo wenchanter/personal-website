@@ -2,6 +2,7 @@ export type Profile = {
   name: string;
   roles: readonly string[];
   email: string;
+  linkedin: string;
   signals: readonly string[];
   summary: string;
   skills: readonly string[];
@@ -25,9 +26,10 @@ export const profile = {
   name: "Harrison Wang",
   roles: ["Senior Software Engineer", "System Designer", "Software Architect"],
   email: "hello@harrison.arch",
-  signals: ["Software architect", "15+ years", "Open to connect"],
+  linkedin: "https://www.linkedin.com/in/harrison-wang-7445299a/",
+  signals: ["Senior Software Engineer", "Software architect", "15+ years"],
   summary:
-    "I design resilient distributed systems and build clear, production-ready products with Next.js.",
+    "I designed and developed high-concurrency and high-availability systems, restructured complex settlement systems with DDD, and implemented a distributed system to isolate tenant traffic.",
   skills: [
     "Python",
     "Spring Cloud",
