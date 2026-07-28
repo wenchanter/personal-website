@@ -29,6 +29,37 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     ).matches;
     let refreshFrame: number | null = null;
     let isDisposed = false;
+    let smoother: ReturnType<typeof ScrollSmoother.create> | null = null;
+
+    const finishInitialAnchorEntry = () => {
+      const documentElement = document.documentElement;
+
+      if (!documentElement.hasAttribute("data-anchor-boot")) {
+        return;
+      }
+
+      const encodedTargetId = window.location.hash.slice(1);
+      let targetId = encodedTargetId;
+
+      try {
+        targetId = decodeURIComponent(encodedTargetId);
+      } catch {
+        // Keep the literal hash when it is not valid URI-encoded text.
+      }
+
+      const target = targetId ? document.getElementById(targetId) : null;
+
+      if (target) {
+        if (smoother) {
+          smoother.scrollTo(target, false, "top top");
+        } else {
+          target.scrollIntoView({ block: "start", behavior: "auto" });
+        }
+      }
+
+      ScrollTrigger.update();
+      documentElement.removeAttribute("data-anchor-boot");
+    };
 
     const queueRefresh = () => {
       if (isDisposed) {
@@ -42,6 +73,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       refreshFrame = window.requestAnimationFrame(() => {
         refreshFrame = null;
         ScrollTrigger.refresh();
+        finishInitialAnchorEntry();
       });
     };
     const refreshAfterFonts = () => {
@@ -68,6 +100,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
           window.cancelAnimationFrame(refreshFrame);
         }
 
+        document.documentElement.removeAttribute("data-anchor-boot");
         window.removeEventListener("load", queueRefresh);
         wrapper.classList.remove("smooth-scroll-wrapper--native");
         content.classList.remove("smooth-scroll-content--native");
@@ -76,7 +109,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
 
     ScrollSmoother.get()?.kill();
 
-    const smoother = ScrollSmoother.create({
+    smoother = ScrollSmoother.create({
       wrapper,
       content,
       smooth: 1,
@@ -95,8 +128,9 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         window.cancelAnimationFrame(refreshFrame);
       }
 
+      document.documentElement.removeAttribute("data-anchor-boot");
       window.removeEventListener("load", queueRefresh);
-      smoother.kill();
+      smoother?.kill();
     };
   }, []);
 

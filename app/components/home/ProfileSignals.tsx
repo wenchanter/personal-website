@@ -23,6 +23,18 @@ export default function ProfileSignals({ signals }: ProfileSignalsProps) {
     }
 
     const context = gsap.context(() => {
+      const skipsEntrance = document.documentElement.hasAttribute(
+        "data-initial-anchor-entry",
+      );
+
+      if (skipsEntrance) {
+        gsap.set(root, {
+          autoAlpha: 1,
+          y: 0,
+        });
+        return;
+      }
+
       gsap.fromTo(
         root,
         {

@@ -6,6 +6,22 @@ import SmoothScroll from "@/app/components/layout/SmoothScroll";
 
 import "./globals.css";
 
+const initialAnchorStyles = `
+html[data-initial-anchor-entry] .hero-details-reveal {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+html[data-initial-anchor-entry] [data-skill-title-character],
+html[data-initial-anchor-entry] [data-skill-summary] {
+  visibility: visible;
+  opacity: 1;
+  filter: blur(0);
+  transform: none;
+}
+`;
+
 const initialScrollGuard = `
 (() => {
   const hash = window.location.hash;
@@ -17,6 +33,8 @@ const initialScrollGuard = `
   }
 
   if (!isHeroEntry) {
+    document.documentElement.setAttribute("data-anchor-boot", "");
+    document.documentElement.setAttribute("data-initial-anchor-entry", "");
     return;
   }
 
@@ -59,8 +77,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html
+      lang="en"
+      className="h-full antialiased"
+      suppressHydrationWarning
+    >
       <head>
+        <style>{initialAnchorStyles}</style>
         <script dangerouslySetInnerHTML={{ __html: initialScrollGuard }} />
       </head>
       <body className="flex min-h-full flex-col">

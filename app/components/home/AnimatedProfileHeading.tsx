@@ -57,29 +57,40 @@ export default function AnimatedProfileHeading({
     }
 
     const context = gsap.context(() => {
-      gsap.set(nameCharacters, {
-        autoAlpha: 0,
-        willChange: "transform, opacity",
-        x: "-0.7em",
-      });
+      const skipsEntrance = document.documentElement.hasAttribute(
+        "data-initial-anchor-entry",
+      );
 
-      gsap
-        .timeline({
-          defaults: {
-            duration: 0.48,
-            ease: "power2.out",
-          },
-        })
-        .to(
-          nameCharacters,
-          {
-            autoAlpha: 1,
-            x: 0,
-            stagger: 0.075,
-            force3D: false,
-          },
-        )
-        .set(nameCharacters, { willChange: "auto" });
+      if (skipsEntrance) {
+        gsap.set(nameCharacters, {
+          autoAlpha: 1,
+          x: 0,
+        });
+      } else {
+        gsap.set(nameCharacters, {
+          autoAlpha: 0,
+          willChange: "transform, opacity",
+          x: "-0.7em",
+        });
+
+        gsap
+          .timeline({
+            defaults: {
+              duration: 0.48,
+              ease: "power2.out",
+            },
+          })
+          .to(
+            nameCharacters,
+            {
+              autoAlpha: 1,
+              x: 0,
+              stagger: 0.075,
+              force3D: false,
+            },
+          )
+          .set(nameCharacters, { willChange: "auto" });
+      }
 
       gsap.set(roleGroups, { autoAlpha: 0 });
 

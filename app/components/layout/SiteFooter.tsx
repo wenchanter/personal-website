@@ -80,8 +80,7 @@ export default function SiteFooter() {
           </p>
 
           <p className="order-2 text-sm leading-5 text-zinc-500 sm:col-start-1 sm:row-start-2 xl:whitespace-nowrap dark:text-zinc-400">
-            High-concurrency and high-availability systems | Distributed systems
-            | DDD practitioner | Scalable architecture and extensible systems.
+            Scalable and resilient systems | Distributed fair queue | DDD practitioner | Scalable architecture and extensible systems.
           </p>
 
           <nav
