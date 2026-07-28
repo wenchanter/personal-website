@@ -90,7 +90,7 @@ export const profile = {
       endYear: "2018",
       role: "Senior Software Engineer",
       summary:
-        "Built scalable backend platforms and data-intensive services, with a focus on performance, service boundaries, and production observability.",
+        "Designed and built a CMS and high-throughput backend services for the NetEase website and NetEase News app, serving approximately 15 million daily active users and handling peak traffic of 400k requests per second, while maintaining 99.95% system availability. Additionally, developed an in-app marketplace, coupon system, and campaign management platform to drive user engagement and retention.",
       logo: "/logos/netease.svg",
       technologies: ["Java", "Spring Boot", "Redis", "Kafka", "MySQL", "Nginx"],
       tone: "rose",
@@ -103,7 +103,7 @@ export const profile = {
       endYear: "2011",
       role: "Software Engineer",
       summary:
-        "Developed enterprise software modules and integrations, translating operational workflows into dependable Java services and reusable platform capabilities.",
+        "Designed and developed procurement and quality inspection modules for the NC 6.0 ERP supply chain platform, supporting core supply chain operations.",
       logo: "/logos/yonyou.png",
       technologies: ["Java", "Spring", "Oracle", "MyBatis", "ERP"],
       tone: "red",
@@ -116,9 +116,9 @@ export const profile = {
       endYear: "2010",
       role: "Software Engineer",
       summary:
-        "Started building production Java applications for large organisations, developing a durable foundation in testing, delivery, and systems thinking.",
+        "Developed payment integration services connecting China UnionPay with Japanese credit card networks for cross-border transactions.",
       logo: "/logos/ntt-data.svg",
-      technologies: ["Java", "Oracle", "HTML"],
+      technologies: ["Java", "Oracle", "Spring", "JSP", "HTML"],
       tone: "sky",
     },
   ],

@@ -308,6 +308,18 @@ export default function SkillShow() {
       const flashHoldDistance = 0.48;
       const flashFadeOutDistance = 0.59;
       const flashFadeInStart = burstLeadDistance - flashFadeInDistance;
+      const burstOpacityDuration =
+        flashFadeInStart + flashFadeInDistance;
+      const burstOpacityPeak = flashFadeInStart / burstOpacityDuration;
+      const getBurstOpacity = (progress: number) => {
+        if (progress <= burstOpacityPeak) {
+          return Math.pow(progress / burstOpacityPeak, 3);
+        }
+
+        return 1 - (progress - burstOpacityPeak) / (1 - burstOpacityPeak);
+      };
+      const burstOpacityState = { progress: 0 };
+      const setBurstOpacity = gsap.quickSetter(orbBurst, "opacity");
       const flashTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: document.documentElement,
@@ -331,19 +343,21 @@ export default function SkillShow() {
             duration: 0.74,
             ease: "power3.in",
             force3D: true,
-            opacity: 1,
             scale: 42,
           },
           0,
         )
         .to(
-          orbBurst,
+          burstOpacityState,
           {
-            duration: flashFadeInDistance,
+            duration: burstOpacityDuration,
             ease: "none",
-            opacity: 0,
+            progress: 1,
+            onUpdate: () => {
+              setBurstOpacity(getBurstOpacity(burstOpacityState.progress));
+            },
           },
-          flashFadeInStart,
+          0,
         )
         .to(
           orbFlashStage,
