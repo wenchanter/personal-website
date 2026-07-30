@@ -97,6 +97,19 @@ body {
   }
 }
 
+@keyframes work-history-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes work-history-sheet-in {
+  from {
+    opacity: 0.72;
+    transform: translate3d(0, 100%, 0);
+  }
+}
+
 .hero-details-reveal {
   opacity: 0;
   transform: translate3d(0, -48px, 0);

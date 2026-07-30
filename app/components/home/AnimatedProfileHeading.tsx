@@ -155,15 +155,15 @@ export default function AnimatedProfileHeading({
   }, []);
 
   return (
-    <div ref={rootRef} className="flex flex-col items-center">
+    <div ref={rootRef} className="flex w-full min-w-0 flex-col items-center">
       <h1
-        className="text-[clamp(3.5rem,10vw,7rem)] leading-[0.88] font-extrabold tracking-[-0.075em] text-zinc-950 text-balance dark:text-zinc-50"
+        className="max-w-full text-[clamp(2.25rem,10.8vw,4rem)] leading-[0.88] font-extrabold tracking-[-0.075em] text-zinc-950 text-balance dark:text-zinc-50 sm:text-[clamp(3.5rem,10vw,7rem)]"
         id="hero-heading"
       >
         <span className="sr-only">{name}</span>
         <AnimatedCharacters text={name} target="name" />
       </h1>
-      <p className="mt-7 text-[clamp(1.6rem,4vw,3rem)] leading-none font-semibold tracking-[-0.04em] text-zinc-700 dark:text-zinc-300">
+      <p className="mt-6 max-w-full text-[clamp(1.2rem,5.7vw,1.6rem)] leading-none font-semibold tracking-[-0.04em] text-zinc-700 dark:text-zinc-300 sm:mt-7 sm:text-[clamp(1.6rem,4vw,3rem)]">
         <span className="sr-only">{roles.join(", ")}</span>
         <span aria-hidden="true" className="grid">
           {roles.map((role, index) => (

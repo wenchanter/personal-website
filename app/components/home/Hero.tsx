@@ -38,7 +38,7 @@ export default function Hero() {
     >
       <ProfileSignals signals={profile.signals} />
 
-      <div className="relative flex w-full max-w-4xl flex-col items-center justify-center border-2 border-dashed border-brand px-5 py-10 sm:min-h-64 sm:px-10 sm:py-12">
+      <div className="relative flex w-full max-w-4xl min-w-0 flex-col items-center justify-center border-2 border-dashed border-brand px-3 py-9 sm:min-h-64 sm:px-10 sm:py-12">
         <SelectionHandles />
         <AnimatedProfileHeading name={profile.name} roles={profile.roles} />
       </div>

@@ -50,9 +50,9 @@ export default function SiteFooter() {
       />
 
       <div className="relative mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-10 lg:gap-x-14">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-10 lg:gap-x-14">
           <Link
-            className="order-1 inline-flex w-fit items-center gap-1.5 text-base font-extrabold tracking-[-0.05em] text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:col-start-1 sm:row-start-1 dark:text-zinc-100"
+            className="col-span-2 col-start-1 row-start-1 inline-flex w-fit items-center gap-1.5 text-base font-extrabold tracking-[-0.05em] text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:col-span-1 sm:col-start-1 sm:row-start-1 dark:text-zinc-100"
             href="/#home"
             aria-label="Harrison dot tech, home"
           >
@@ -69,22 +69,22 @@ export default function SiteFooter() {
           </Link>
 
           <p
-            className="order-3 mt-3 font-mono text-[0.65rem] font-semibold tracking-[0.2em] text-zinc-400 uppercase sm:col-start-2 sm:row-start-1 sm:mt-0 sm:self-center dark:text-zinc-500"
+            className="col-start-1 row-start-3 mt-3 font-mono text-[0.65rem] font-semibold tracking-[0.2em] text-zinc-400 uppercase sm:col-start-2 sm:row-start-1 sm:mt-0 sm:self-center dark:text-zinc-500"
             id="footer-navigation-heading"
           >
             Navigation
           </p>
 
-          <p className="order-5 mt-3 font-mono text-[0.65rem] font-semibold tracking-[0.2em] text-zinc-400 uppercase sm:col-start-3 sm:row-start-1 sm:mt-0 sm:self-center dark:text-zinc-500">
+          <p className="col-start-2 row-start-3 mt-3 font-mono text-[0.65rem] font-semibold tracking-[0.2em] text-zinc-400 uppercase sm:col-start-3 sm:row-start-1 sm:mt-0 sm:self-center dark:text-zinc-500">
             Contact
           </p>
 
-          <p className="order-2 text-sm leading-5 text-zinc-500 sm:col-start-1 sm:row-start-2 xl:whitespace-nowrap dark:text-zinc-400">
+          <p className="col-span-2 col-start-1 row-start-2 text-sm leading-5 text-zinc-500 sm:col-span-1 sm:col-start-1 sm:row-start-2 xl:whitespace-nowrap dark:text-zinc-400">
             Scalable and resilient systems | Distributed fair queue | DDD practitioner | Scalable architecture and extensible systems.
           </p>
 
           <nav
-            className="order-4 flex items-center gap-4 sm:col-start-2 sm:row-start-2"
+            className="col-start-1 row-start-4 flex items-center gap-4 sm:col-start-2 sm:row-start-2"
             aria-labelledby="footer-navigation-heading"
           >
             {footerNavigation.map((item) => (
@@ -108,7 +108,7 @@ export default function SiteFooter() {
           </nav>
 
           <a
-            className={`${footerLinkClass} order-6 inline-flex items-center gap-1.5 sm:col-start-3 sm:row-start-2`}
+            className={`${footerLinkClass} col-start-2 row-start-4 inline-flex items-center gap-1.5 sm:col-start-3 sm:row-start-2`}
             href={profile.linkedin}
             target="_blank"
             rel="noreferrer"
