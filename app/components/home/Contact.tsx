@@ -20,15 +20,15 @@ export default function Contact() {
               className="mt-8 max-w-[12ch] text-[clamp(2.5rem,3.35vw,3.5rem)] leading-[1.06] font-extrabold tracking-[-0.05em] text-zinc-950 sm:mt-9 dark:text-zinc-100"
               id="contact-heading"
             >
-              Turning Complexity into{" "}
+              Complex Systems,{" "}
               <span className="relative isolate inline-block">
-                Scalable
+                Simple
                 <span
                   className="absolute right-0 bottom-[0.04em] left-0 -z-10 h-[0.18em] bg-emerald-200/90 dark:bg-emerald-500/35"
                   aria-hidden="true"
                 />
               </span>{" "}
-              Software Solutions
+              Experiences
             </h2>
 
             <a

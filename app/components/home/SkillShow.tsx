@@ -7,29 +7,35 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import OrbConvergence from "@/app/components/home/OrbConvergence";
 import { approachPaths } from "@/app/data/orbs";
 
-const statement = "Complex systems should feel simple to use.";
+const statementLines = [
+  "Complex logic should result in",
+  "effortless software.",
+] as const;
 
-function AnimatedStatement({ text }: { text: string }) {
-  const words = text.split(" ");
-
+function AnimatedStatement({ lines }: { lines: readonly string[] }) {
   return (
     <>
-      <span className="sr-only">{text}</span>
+      <span className="sr-only">{lines.join(" ")}</span>
       <span aria-hidden="true">
-        {words.map((word, wordIndex) => (
-          <span
-            className="mr-[0.22em] inline-block whitespace-nowrap last:mr-0"
-            key={`${word}-${wordIndex}`}
-          >
-            {Array.from(word).map((character, characterIndex) => (
+        {lines.map((line, lineIndex) => (
+          <span className="sm:block" key={line}>
+            {line.split(" ").map((word, wordIndex) => (
               <span
-                className="inline-block"
-                data-skill-title-character
-                key={`${character}-${characterIndex}`}
+                className="mr-[0.22em] inline-block whitespace-nowrap last:mr-0"
+                key={`${word}-${wordIndex}`}
               >
-                {character}
+                {Array.from(word).map((character, characterIndex) => (
+                  <span
+                    className="inline-block"
+                    data-skill-title-character
+                    key={`${character}-${characterIndex}`}
+                  >
+                    {character}
+                  </span>
+                ))}
               </span>
             ))}
+            {lineIndex < lines.length - 1 ? " " : null}
           </span>
         ))}
       </span>
@@ -391,11 +397,16 @@ export default function SkillShow() {
     >
       <div className="relative mx-auto flex h-full max-w-6xl flex-col items-center text-center">
         <p
-          className="pointer-events-none absolute top-18 left-1/2 w-[100vw] max-w-7.2xl -translate-x-1/2 text-[clamp(3.7rem,9.5vw,7.5rem)] leading-[0.84] font-bold tracking-[-0.075em] text-balance text-zinc-950/[0.32] blur-[9px] select-none dark:text-white/[0.3]"
+          className="pointer-events-none absolute top-18 left-1/2 w-[100vw] -translate-x-1/2 text-[clamp(3.7rem,6.2vw,7.0rem)] leading-[0.95] font-bold tracking-[-0.02em] text-balance text-zinc-950/[0.45] blur-[5px] select-none sm:w-max sm:max-w-none dark:text-white/[0.38]"
           data-skill-background
           aria-hidden="true"
         >
-          {statement}
+          {statementLines.map((line, lineIndex) => (
+            <span className="sm:block sm:whitespace-nowrap" key={line}>
+              {line}
+              {lineIndex < statementLines.length - 1 ? " " : null}
+            </span>
+          ))}
         </p>
 
         <div className="relative mx-auto mt-40 max-w-4xl">
@@ -403,14 +414,13 @@ export default function SkillShow() {
             className="text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.98] font-semibold tracking-[-0.06em] text-balance text-zinc-950 dark:text-zinc-100"
             id="skill-show-heading"
           >
-            <AnimatedStatement text={statement} />
+            <AnimatedStatement lines={statementLines} />
           </h2>
           <p
             className="mx-auto mt-5 max-w-[46ch] text-sm leading-6 text-pretty text-zinc-600 sm:text-base sm:leading-7 dark:text-zinc-400"
             data-skill-summary
           >
-            I connect architecture, product thinking, and frontend craft to
-            build software that stays resilient and feels clear.
+          I blend backend architecture, Domain-Driven Design, and modern frontend craft to build resilient, high-throughput systems that feel simple to use—and now, accelerated by AI.
           </p>
         </div>
 
