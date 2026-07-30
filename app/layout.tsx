@@ -54,18 +54,24 @@ const initialScrollGuard = `
 `;
 
 export const metadata: Metadata = {
-  title: "Zhang Wei - Software Architect",
+  metadataBase: new URL("https://harrison.tech"),
+  title: "Harrison Wang — Software Architect",
   description:
     "Senior software architect specialising in distributed systems, DDD, and high-concurrency design.",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Zhang Wei - Software Architect",
+    title: "Harrison Wang — Software Architect",
     description:
       "Senior software architect specialising in distributed systems, DDD, and high-concurrency design.",
+    url: "/",
+    siteName: "Harrison Wang",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Zhang Wei - Software Architect",
+    title: "Harrison Wang — Software Architect",
     description:
       "Senior software architect specialising in distributed systems, DDD, and high-concurrency design.",
   },

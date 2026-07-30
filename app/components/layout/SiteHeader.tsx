@@ -19,7 +19,7 @@ export default function SiteHeader() {
         <Link
           className="inline-flex items-center gap-2 text-xl font-extrabold tracking-[-0.045em] text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand dark:text-zinc-100 sm:text-2xl"
           href="/#home"
-          aria-label="Harrison dot arch, home"
+          aria-label="Harrison dot tech, home"
         >
           <Image
             className="size-9 shrink-0 object-contain sm:size-10"
@@ -29,7 +29,7 @@ export default function SiteHeader() {
             height={256}
           />
           <span>
-            harrison.<span className="text-brand">arch</span>
+            harrison.<span className="text-brand">tech</span>
           </span>
         </Link>
 

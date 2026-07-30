@@ -25,7 +25,7 @@ export type WorkHistoryItem = {
 export const profile = {
   name: "Harrison Wang",
   roles: ["Senior Software Engineer", "System Designer", "Software Architect"],
-  email: "hello@harrison.arch",
+  email: "hello@harrison.tech",
   linkedin: "https://www.linkedin.com/in/harrison-wang-7445299a/",
   signals: ["Senior Software Engineer", "Software architect", "15+ years"],
   summary:

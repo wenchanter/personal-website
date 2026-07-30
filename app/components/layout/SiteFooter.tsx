@@ -54,7 +54,7 @@ export default function SiteFooter() {
           <Link
             className="order-1 inline-flex w-fit items-center gap-1.5 text-base font-extrabold tracking-[-0.05em] text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:col-start-1 sm:row-start-1 dark:text-zinc-100"
             href="/#home"
-            aria-label="Harrison dot arch, home"
+            aria-label="Harrison dot tech, home"
           >
             <Image
               className="size-6 shrink-0 object-contain"
@@ -64,7 +64,7 @@ export default function SiteFooter() {
               height={256}
             />
             <span>
-              harrison.<span className="text-brand">arch</span>
+              harrison.<span className="text-brand">tech</span>
             </span>
           </Link>
 
