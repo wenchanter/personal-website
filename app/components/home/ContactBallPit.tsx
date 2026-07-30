@@ -21,29 +21,80 @@ type BallBody = {
   collisionWeight: number;
 };
 
-const additionalBallColors = [
-  { accent: "#db2777", tint: "#f9a8d4" },
-  { accent: "#7c3aed", tint: "#c4b5fd" },
-  { accent: "#ea580c", tint: "#fdba74" },
-  { accent: "#16a34a", tint: "#86efac" },
-  { accent: "#4f46e5", tint: "#a5b4fc" },
-  { accent: "#ca8a04", tint: "#fde047" },
-  { accent: "#0f766e", tint: "#5eead4" },
-  { accent: "#be123c", tint: "#fda4af" },
-  { accent: "#9333ea", tint: "#d8b4fe" },
+const additionalBallSpecs = [
+  {
+    accent: "#db2777",
+    tint: "#f9a8d4",
+    icon: "/icons/typescript.svg",
+    iconScale: [1.35, 0.68],
+    label: "TypeScript",
+  },
+  {
+    accent: "#7c3aed",
+    tint: "#c4b5fd",
+    icon: "/icons/dynamodb.svg",
+    iconScale: [1.2, 0.95],
+    label: "Amazon DynamoDB",
+  },
+  {
+    accent: "#ea580c",
+    tint: "#fdba74",
+    icon: "/icons/kubernetes.svg",
+    iconScale: [1.22, 0.92],
+    label: "Kubernetes",
+  },
+  {
+    accent: "#16a34a",
+    tint: "#86efac",
+    icon: "/icons/lua.svg",
+    iconScale: [1.12, 1.12],
+    label: "Lua",
+  },
+  {
+    accent: "#4f46e5",
+    tint: "#a5b4fc",
+    icon: "/icons/mongodb.svg",
+    iconScale: [1.5, 0.42],
+    label: "MongoDB",
+  },
+  {
+    accent: "#ca8a04",
+    tint: "#fde047",
+    icon: "/icons/postgresql.svg",
+    iconScale: [1.15, 1.15],
+    label: "PostgreSQL",
+  },
+  {
+    accent: "#0f766e",
+    tint: "#5eead4",
+    icon: "/icons/python.svg",
+    iconScale: [1.15, 1.15],
+    label: "Python",
+  },
+  {
+    accent: "#be123c",
+    tint: "#fda4af",
+    icon: "/icons/rocketmq.svg",
+    iconScale: [1.5, 0.45],
+    label: "Apache RocketMQ",
+  },
+  {
+    accent: "#9333ea",
+    tint: "#d8b4fe",
+    icon: "/icons/nginx.png",
+    iconScale: [1.12, 1.12],
+    label: "Nginx",
+  },
 ] as const;
 
 const ballSpecs = [
   ...approachPaths.map((path, index) => ({
     icon: path.icon,
+    iconScale: null,
     label: path.label,
     ...orbPalette[index],
   })),
-  ...additionalBallColors.map((colors, index) => ({
-    ...colors,
-    icon: null,
-    label: `Decorative sphere ${index + 1}`,
-  })),
+  ...additionalBallSpecs,
 ] as const;
 
 const MAX_DELTA = 1 / 30;
@@ -130,10 +181,11 @@ export default function ContactBallPit() {
     scene.add(warmLight);
 
     const geometry = new THREE.SphereGeometry(1, 48, 32);
-    const textureLoader = new THREE.TextureLoader();
     const bodies: BallBody[] = [];
     const materials: THREE.Material[] = [];
     const textures: THREE.Texture[] = [];
+    const iconImages: HTMLImageElement[] = [];
+    let disposed = false;
 
     ballSpecs.forEach((spec, index) => {
       const radius = 0.53 + (index % 5) * 0.08;
@@ -167,30 +219,75 @@ export default function ContactBallPit() {
       materials.push(material);
 
       if (spec.icon) {
-        const texture = textureLoader.load(spec.icon);
-        texture.colorSpace = THREE.SRGBColorSpace;
-        textures.push(texture);
-
         const iconMaterial = new THREE.SpriteMaterial({
-          map: texture,
           transparent: true,
+          opacity: 0,
           depthTest: true,
           depthWrite: false,
           toneMapped: false,
         });
         const icon = new THREE.Sprite(iconMaterial);
-        const iconScale =
+        const defaultIconScale =
           spec.label === "Domain-Driven Design"
             ? 1.35
             : spec.label === "Apache Kafka"
               ? 1.05
               : 1.18;
+        const [iconWidth, iconHeight] = spec.iconScale ?? [
+          defaultIconScale,
+          defaultIconScale,
+        ];
 
-        icon.scale.set(iconScale, iconScale, 1);
+        icon.scale.set(iconWidth, iconHeight, 1);
         icon.position.set(0, 0, 0);
         icon.renderOrder = 2;
         mesh.add(icon);
         materials.push(iconMaterial);
+
+        /*
+         * SVG images uploaded directly through TextureLoader can take different
+         * browser/GPU paths. Chromium occasionally rejects that upload with
+         * GL_INVALID_OPERATION, leaving a valid sprite with an empty texture.
+         * Rasterising every source through the same transparent canvas gives
+         * WebGL one predictable RGBA texture format for SVG and PNG alike.
+         */
+        const image = new Image();
+        iconImages.push(image);
+        image.decoding = "async";
+        image.addEventListener(
+          "load",
+          () => {
+            if (disposed) {
+              return;
+            }
+
+            const rasterSize = 512;
+            const canvas = document.createElement("canvas");
+            canvas.width = rasterSize;
+            canvas.height = rasterSize;
+
+            const context = canvas.getContext("2d");
+
+            if (!context) {
+              return;
+            }
+
+            context.clearRect(0, 0, rasterSize, rasterSize);
+            context.drawImage(image, 0, 0, rasterSize, rasterSize);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.colorSpace = THREE.SRGBColorSpace;
+            texture.needsUpdate = true;
+            textures.push(texture);
+
+            iconMaterial.map = texture;
+            iconMaterial.opacity = 1;
+            iconMaterial.needsUpdate = true;
+            renderer.render(scene, camera);
+          },
+          { once: true },
+        );
+        image.src = spec.icon;
       }
 
       bodies.push({
@@ -701,12 +798,16 @@ export default function ContactBallPit() {
     startEntryIfReady();
 
     return () => {
+      disposed = true;
       stop();
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      iconImages.forEach((image) => {
+        image.src = "";
+      });
 
       bodies.forEach(({ mesh }) => {
         scene.remove(mesh);
