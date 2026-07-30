@@ -1,7 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { Fragment, useLayoutEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
+import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -33,6 +43,133 @@ const workCardThemes = {
   { accent: string; secondary: string }
 >;
 
+type WorkDetailsSheetProps = {
+  position: WorkHistoryItem;
+  returnFocusRef: RefObject<HTMLButtonElement | null>;
+  onClose: () => void;
+};
+
+function WorkDetailsSheet({
+  position,
+  returnFocusRef,
+  onClose,
+}: WorkDetailsSheetProps) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const theme = workCardThemes[position.tone];
+
+  useEffect(() => {
+    const returnFocus = returnFocusRef.current;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+
+      if (event.key === "Tab") {
+        event.preventDefault();
+        closeRef.current?.focus();
+      }
+    };
+
+    closeRef.current?.focus();
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      returnFocus?.focus({ preventScroll: true });
+    };
+  }, [onClose, returnFocusRef]);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] flex animate-[work-history-backdrop-in_180ms_ease-out_both] items-end bg-zinc-950/45 backdrop-blur-[2px] overscroll-contain motion-reduce:animate-none sm:hidden"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) {
+          onClose();
+        }
+      }}
+      onWheel={(event) => {
+        if (event.currentTarget === event.target) {
+          event.preventDefault();
+        }
+      }}
+    >
+      <section
+        className="max-h-[86svh] w-full animate-[work-history-sheet-in_320ms_cubic-bezier(0.16,1,0.3,1)_both] overflow-y-auto rounded-t-3xl border border-b-0 bg-stone-50 px-5 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-[0_-24px_80px_rgba(0,0,0,0.2)] overscroll-contain motion-reduce:animate-none dark:bg-zinc-900"
+        style={{ borderColor: `${theme.accent}45` }}
+        role="dialog"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        aria-modal="true"
+      >
+        <div
+          className="mx-auto h-1 w-10 rounded-full bg-zinc-300 dark:bg-zinc-600"
+          aria-hidden="true"
+        />
+
+        <div className="mt-4 flex items-start justify-between gap-4">
+          <div>
+            <p
+              className="font-mono text-xs font-semibold tracking-[0.14em]"
+              style={{ color: theme.accent }}
+            >
+              {position.period}
+            </p>
+            <h3
+              className="mt-2 text-2xl leading-tight font-extrabold tracking-[-0.04em] text-zinc-950 dark:text-zinc-100"
+              id={titleId}
+            >
+              {position.role}
+            </h3>
+            <p className="mt-1 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+              {position.company}
+            </p>
+          </div>
+
+          <button
+            ref={closeRef}
+            className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-zinc-950/10 text-xl text-zinc-600 transition-colors hover:border-zinc-950/25 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:border-white/12 dark:text-zinc-300 dark:hover:border-white/30 dark:hover:text-white"
+            type="button"
+            aria-label="Close work experience details"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+
+        <p
+          className="mt-6 text-base leading-7 text-zinc-600 dark:text-zinc-300"
+          id={descriptionId}
+        >
+          {position.summary}
+        </p>
+
+        <ul
+          className="mt-6 flex flex-wrap gap-2"
+          aria-label={`${position.company} technologies`}
+        >
+          {position.technologies.map((technology) => (
+            <li
+              className="rounded-md border px-2.5 py-1.5 font-mono text-xs font-semibold tracking-[0.04em]"
+              style={{
+                borderColor: `${theme.accent}2b`,
+                backgroundColor: `${theme.accent}08`,
+                color: theme.accent,
+              }}
+              key={technology}
+            >
+              {technology}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
 export default function WorkHistory() {
   const rootRef = useRef<HTMLElement>(null);
   const companyNavRef = useRef<HTMLElement>(null);
@@ -40,7 +177,14 @@ export default function WorkHistory() {
   const cardAnchorRefs = useRef<Array<HTMLDivElement | null>>([]);
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
   const scrollTweenRef = useRef<gsap.core.Tween | null>(null);
+  const detailsTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedPosition, setSelectedPosition] =
+    useState<WorkHistoryItem | null>(null);
+  const closeDetails = useCallback(
+    () => setSelectedPosition(null),
+    [setSelectedPosition],
+  );
 
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -270,7 +414,7 @@ export default function WorkHistory() {
                     ref={(element) => {
                       cardRefs.current[index] = element;
                     }}
-                    className="sticky top-36 flex min-h-[36rem] scroll-mt-[33vh] flex-col overflow-hidden rounded-2xl border bg-white/98 shadow-[0_24px_70px_rgba(24,24,27,0.12)] lg:top-24 lg:h-[42rem] lg:min-h-0 lg:rounded-l-none xl:h-[38rem] dark:bg-zinc-900/98 dark:shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
+                    className="sticky top-36 flex h-[calc(100svh-9.5rem)] min-h-0 scroll-mt-[33vh] flex-col overflow-hidden rounded-2xl border bg-white shadow-[0_24px_70px_rgba(24,24,27,0.12)] sm:h-auto sm:min-h-[36rem] sm:bg-white/98 lg:top-24 lg:h-[42rem] lg:min-h-0 lg:rounded-l-none xl:h-[38rem] dark:bg-zinc-900 dark:shadow-[0_24px_70px_rgba(0,0,0,0.32)] sm:dark:bg-zinc-900/98"
                     id={`work-position-${position.id}`}
                     style={{
                       borderColor: `${theme.accent}33`,
@@ -285,7 +429,7 @@ export default function WorkHistory() {
                     aria-hidden="true"
                   />
 
-                  <header className="relative overflow-hidden border-b border-zinc-950/[0.055] px-6 py-8 sm:px-10 sm:py-10 lg:px-12 xl:px-16 dark:border-white/10">
+                  <header className="relative shrink-0 overflow-hidden border-b border-zinc-950/[0.055] px-5 py-5 sm:px-10 sm:py-10 lg:min-h-[12.1875rem] lg:px-12 lg:py-8 xl:min-h-[14.0625rem] xl:px-16 dark:border-white/10">
                     <div
                       className="pointer-events-none absolute inset-0"
                       style={{
@@ -294,7 +438,7 @@ export default function WorkHistory() {
                       aria-hidden="true"
                     />
                     <span
-                      className="pointer-events-none absolute right-4 bottom-[-0.15em] text-[clamp(6rem,14vw,10.5rem)] leading-none font-black tracking-[-0.08em] select-none sm:right-8"
+                      className="pointer-events-none absolute right-4 bottom-[-0.15em] text-[clamp(5rem,14vw,10.5rem)] leading-none font-black tracking-[-0.08em] select-none sm:right-8 sm:text-[clamp(6rem,14vw,10.5rem)]"
                       style={{ color: `${theme.accent}0c` }}
                       aria-hidden="true"
                     >
@@ -302,7 +446,7 @@ export default function WorkHistory() {
                     </span>
 
                     <div
-                      className="relative z-20 ml-auto mb-6 flex h-16 w-36 items-center justify-center overflow-hidden rounded-2xl border bg-white/94 p-4 shadow-[0_10px_28px_rgba(24,24,27,0.07)] sm:absolute sm:top-7 sm:right-8 sm:mb-0 sm:h-20 sm:w-44 dark:bg-white/92"
+                      className="relative z-20 ml-auto mb-3 flex h-12 w-28 items-center justify-center overflow-hidden rounded-xl border bg-white/94 p-3 shadow-[0_10px_28px_rgba(24,24,27,0.07)] sm:absolute sm:top-7 sm:right-8 sm:mb-0 sm:h-20 sm:w-44 sm:rounded-2xl sm:p-4 dark:bg-white/92"
                       style={{ borderColor: `${theme.accent}2b` }}
                     >
                       <div className="relative h-full w-full">
@@ -323,12 +467,12 @@ export default function WorkHistory() {
                       >
                         {position.period}
                       </p>
-                      <h3 className="mt-4 max-w-3xl text-3xl leading-tight font-extrabold tracking-[-0.04em] text-zinc-950 sm:text-4xl lg:text-5xl dark:text-zinc-100">
+                      <h3 className="mt-3 max-w-3xl text-2xl leading-tight font-extrabold tracking-[-0.04em] text-zinc-950 sm:mt-4 sm:text-4xl xl:text-5xl dark:text-zinc-100">
                         {position.role}
                       </h3>
-                      <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <div className="mt-3 hidden flex-wrap items-center gap-3 max-sm:flex">
                         <span
-                          className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-bold sm:text-base"
+                          className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold"
                           style={{
                             borderColor: `${theme.accent}33`,
                             backgroundColor: `${theme.accent}0c`,
@@ -346,18 +490,32 @@ export default function WorkHistory() {
                     </div>
                   </header>
 
-                  <div className="relative flex flex-1 flex-col px-6 py-8 sm:px-10 sm:py-10 lg:px-12 xl:px-16">
-                    <p className="max-w-[72ch] text-base leading-8 text-pretty text-zinc-600 sm:text-lg sm:leading-9 dark:text-zinc-300">
+                  <div className="relative flex flex-1 flex-col px-5 py-5 sm:px-10 sm:py-10 lg:px-12 lg:py-7 xl:px-16">
+                    <p className="line-clamp-5 max-w-[72ch] text-sm leading-6 text-pretty text-zinc-600 sm:line-clamp-none sm:text-lg sm:leading-9 lg:text-base lg:leading-8 xl:text-lg xl:leading-9 dark:text-zinc-300">
                       {position.summary}
                     </p>
 
+                    <button
+                      className="mt-2 inline-flex w-fit items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:hidden"
+                      style={{ color: theme.accent }}
+                      type="button"
+                      aria-haspopup="dialog"
+                      onClick={(event) => {
+                        detailsTriggerRef.current = event.currentTarget;
+                        setSelectedPosition(position);
+                      }}
+                    >
+                      Read more
+                      <span aria-hidden="true">→</span>
+                    </button>
+
                     <ul
-                      className="mt-8 flex flex-wrap gap-2.5 sm:mt-10 sm:gap-3"
+                      className="mt-4 flex flex-wrap gap-2 sm:mt-10 sm:gap-3 lg:mt-6 xl:mt-10"
                       aria-label={`${position.company} technologies`}
                     >
                       {position.technologies.map((technology) => (
                         <li
-                          className="rounded-lg border px-3 py-2 font-mono text-sm font-semibold tracking-[0.04em] sm:px-4 sm:text-base"
+                          className="rounded-md border px-2.5 py-1.5 font-mono text-xs font-semibold tracking-[0.04em] sm:rounded-lg sm:px-4 sm:py-2 sm:text-base"
                           style={{
                             borderColor: `${theme.accent}2b`,
                             backgroundColor: `${theme.accent}08`,
@@ -371,7 +529,7 @@ export default function WorkHistory() {
                     </ul>
                   </div>
 
-                  <footer className="relative mt-auto flex items-center justify-between gap-4 border-t border-zinc-950/8 px-6 py-5 font-mono text-sm font-medium tracking-[0.1em] text-zinc-400 sm:px-10 lg:px-12 xl:px-16 dark:border-white/10 dark:text-zinc-500">
+                  <footer className="relative mt-auto flex shrink-0 items-center justify-between gap-4 border-t border-zinc-950/8 px-5 py-3.5 font-mono text-xs font-medium tracking-[0.08em] text-zinc-400 sm:px-10 sm:py-5 sm:text-sm sm:tracking-[0.1em] lg:px-12 xl:px-16 xl:py-[1.125rem] dark:border-white/10 dark:text-zinc-500">
                     <div className="flex items-center gap-3">
                       <span
                         className="size-2 rounded-full"
@@ -382,7 +540,7 @@ export default function WorkHistory() {
                     </div>
 
                     <div
-                      className="flex items-center gap-2"
+                      className="hidden items-center gap-2 min-[390px]:flex"
                       aria-hidden="true"
                     >
                       {profile.workHistory.map((item, dotIndex) => (
@@ -413,6 +571,14 @@ export default function WorkHistory() {
           </div>
         </div>
       </div>
+
+      {selectedPosition ? (
+        <WorkDetailsSheet
+          position={selectedPosition}
+          returnFocusRef={detailsTriggerRef}
+          onClose={closeDetails}
+        />
+      ) : null}
     </section>
   );
 }
