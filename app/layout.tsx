@@ -66,25 +66,36 @@ const initialScrollGuard = `
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://harrison.tech"),
-  title: "Harrison Wang — Software Architect",
-  description:
-    "Senior software architect specialising in distributed systems, DDD, and high-concurrency design.",
+  title: "Harrison Wang — Senior Software Engineer",
+  description: "Senior Software Engineer | Architect | Continuous Learner",
+  icons: {
+    icon: "/icons/hw-monogram.png",
+    shortcut: "/icons/hw-monogram.png",
+    apple: "/icons/hw-monogram.png",
+  },
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Harrison Wang — Software Architect",
-    description:
-      "Senior software architect specialising in distributed systems, DDD, and high-concurrency design.",
+    title: "Harrison Wang — Senior Software Engineer",
+    description: "Senior Software Engineer | Architect | Continuous Learner",
     url: "/",
     siteName: "Harrison Wang",
     type: "website",
+    images: [
+      {
+        url: "https://harrisontech.pages.dev/icons/hw-monogram.png",
+        width: 256,
+        height: 256,
+        alt: "Harrison Wang monogram",
+      },
+    ],
   },
   twitter: {
     card: "summary",
-    title: "Harrison Wang — Software Architect",
-    description:
-      "Senior software architect specialising in distributed systems, DDD, and high-concurrency design.",
+    title: "Harrison Wang — Senior Software Engineer",
+    description: "Senior Software Engineer | Architect | Continuous Learner",
+    images: ["https://harrisontech.pages.dev/icons/hw-monogram.png"],
   },
 };
 
