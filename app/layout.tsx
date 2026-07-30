@@ -7,6 +7,14 @@ import SmoothScroll from "@/app/components/layout/SmoothScroll";
 import "./globals.css";
 
 const initialAnchorStyles = `
+@media (scripting: enabled) {
+  html[data-anchor-boot] [data-smooth-scroll-wrapper],
+  html[data-anchor-boot] [data-orb-burst],
+  html[data-anchor-boot] [data-orb-flash-stage] {
+    visibility: hidden !important;
+  }
+}
+
 html[data-initial-anchor-entry] .hero-details-reveal {
   opacity: 1;
   transform: none;
@@ -35,6 +43,9 @@ const initialScrollGuard = `
   if (!isHeroEntry) {
     document.documentElement.setAttribute("data-anchor-boot", "");
     document.documentElement.setAttribute("data-initial-anchor-entry", "");
+    window.setTimeout(() => {
+      document.documentElement.removeAttribute("data-anchor-boot");
+    }, 6000);
     return;
   }
 

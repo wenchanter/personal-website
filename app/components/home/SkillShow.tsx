@@ -314,18 +314,40 @@ export default function SkillShow() {
       const flashHoldDistance = 0.48;
       const flashFadeOutDistance = 0.59;
       const flashFadeInStart = burstLeadDistance - flashFadeInDistance;
-      const burstOpacityDuration =
-        flashFadeInStart + flashFadeInDistance;
-      const burstOpacityPeak = flashFadeInStart / burstOpacityDuration;
-      const getBurstOpacity = (progress: number) => {
-        if (progress <= burstOpacityPeak) {
-          return Math.pow(progress / burstOpacityPeak, 3);
+      const flashFadeInEnd = flashFadeInStart + flashFadeInDistance;
+      const flashFadeOutStart = flashFadeInEnd + flashHoldDistance;
+      const flashOpacityDuration =
+        flashFadeOutStart + flashFadeOutDistance;
+      const flashOpacityState = { progress: 0 };
+      const setBurstOpacity = gsap.quickSetter(orbBurst, "opacity");
+      const setFlashOpacity = gsap.quickSetter(orbFlashStage, "opacity");
+      const updateFlashOpacity = () => {
+        const time = flashOpacityState.progress * flashOpacityDuration;
+        let burstOpacity = 0;
+        let stageOpacity = 0;
+
+        if (time <= flashFadeInStart) {
+          burstOpacity = Math.pow(
+            gsap.utils.clamp(0, 1, time / flashFadeInStart),
+            3,
+          );
+        } else if (time < flashFadeInEnd) {
+          // Keep the burst fully opaque until the full-screen layer has
+          // completely taken over. Cross-fading two translucent white layers
+          // would expose the statement between them.
+          burstOpacity = 1;
+          stageOpacity =
+            (time - flashFadeInStart) / flashFadeInDistance;
+        } else if (time < flashFadeOutStart) {
+          stageOpacity = 1;
+        } else {
+          stageOpacity =
+            1 - (time - flashFadeOutStart) / flashFadeOutDistance;
         }
 
-        return 1 - (progress - burstOpacityPeak) / (1 - burstOpacityPeak);
+        setBurstOpacity(gsap.utils.clamp(0, 1, burstOpacity));
+        setFlashOpacity(gsap.utils.clamp(0, 1, stageOpacity));
       };
-      const burstOpacityState = { progress: 0 };
-      const setBurstOpacity = gsap.quickSetter(orbBurst, "opacity");
       const flashTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: document.documentElement,
@@ -354,36 +376,15 @@ export default function SkillShow() {
           0,
         )
         .to(
-          burstOpacityState,
+          flashOpacityState,
           {
-            duration: burstOpacityDuration,
+            duration: flashOpacityDuration,
             ease: "none",
             progress: 1,
-            onUpdate: () => {
-              setBurstOpacity(getBurstOpacity(burstOpacityState.progress));
-            },
+            onUpdate: updateFlashOpacity,
           },
           0,
-        )
-        .to(
-          orbFlashStage,
-          {
-            duration: flashFadeInDistance,
-            ease: "none",
-            opacity: 1,
-          },
-          flashFadeInStart,
-        )
-        .to(orbFlashStage, {
-          duration: flashHoldDistance,
-          ease: "none",
-          opacity: 1,
-        })
-        .to(orbFlashStage, {
-          duration: flashFadeOutDistance,
-          ease: "none",
-          opacity: 0,
-        });
+        );
     }, section);
 
     return () => context.revert();
