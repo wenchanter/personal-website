@@ -36,7 +36,7 @@ export default function SiteFooter() {
 
   return (
     <footer
-      className="relative z-10 overflow-hidden border-t border-zinc-950/8 bg-stone-50 px-4 py-6 sm:px-6 lg:px-8 lg:py-5 dark:border-white/10 dark:bg-zinc-950"
+      className="relative z-10 overflow-hidden border-t border-zinc-950/8 bg-stone-50 px-4 py-4 sm:px-6 lg:px-8 dark:border-white/10 dark:bg-zinc-950"
       id="footer"
     >
       <span
@@ -50,14 +50,14 @@ export default function SiteFooter() {
       />
 
       <div className="relative mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 gap-y-1.5 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-10 lg:gap-x-14">
+        <div className="grid grid-cols-1 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-10 lg:gap-x-14">
           <Link
-            className="order-1 inline-flex w-fit items-center gap-1.5 text-lg font-extrabold tracking-[-0.05em] text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:col-start-1 sm:row-start-1 dark:text-zinc-100"
+            className="order-1 inline-flex w-fit items-center gap-1.5 text-base font-extrabold tracking-[-0.05em] text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:col-start-1 sm:row-start-1 dark:text-zinc-100"
             href="/#home"
             aria-label="Harrison dot arch, home"
           >
             <Image
-              className="size-7 shrink-0 object-contain"
+              className="size-6 shrink-0 object-contain"
               src="/icons/hw-monogram.png"
               alt=""
               width={256}
@@ -118,7 +118,7 @@ export default function SiteFooter() {
           </a>
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 border-t border-zinc-950/8 pt-3 font-mono text-[0.65rem] font-medium tracking-[0.05em] text-zinc-400 sm:flex-row sm:items-center sm:justify-between dark:border-white/10 dark:text-zinc-500">
+        <div className="mt-2.5 flex flex-col gap-1.5 border-t border-zinc-950/8 pt-2 font-mono text-[0.625rem] font-medium tracking-[0.05em] text-zinc-400 sm:flex-row sm:items-center sm:justify-between dark:border-white/10 dark:text-zinc-500">
           <p>
             © {currentYear}
             {" Harrison Wang"}
