@@ -30,11 +30,16 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     let refreshFrame: number | null = null;
     let isDisposed = false;
     let smoother: ReturnType<typeof ScrollSmoother.create> | null = null;
+    const documentElement = document.documentElement;
+    let initialAnchorLayoutReady = !documentElement.hasAttribute(
+      "data-anchor-boot",
+    );
 
     const finishInitialAnchorEntry = () => {
-      const documentElement = document.documentElement;
-
-      if (!documentElement.hasAttribute("data-anchor-boot")) {
+      if (
+        !initialAnchorLayoutReady ||
+        !documentElement.hasAttribute("data-anchor-boot")
+      ) {
         return;
       }
 
@@ -77,7 +82,14 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       });
     };
     const refreshAfterFonts = () => {
-      void document.fonts.ready.then(queueRefresh);
+      void document.fonts.ready.then(() => {
+        if (isDisposed) {
+          return;
+        }
+
+        initialAnchorLayoutReady = true;
+        queueRefresh();
+      });
     };
 
     // Refresh only at layout-stable lifecycle points. A subtree MutationObserver
@@ -100,7 +112,6 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
           window.cancelAnimationFrame(refreshFrame);
         }
 
-        document.documentElement.removeAttribute("data-anchor-boot");
         window.removeEventListener("load", queueRefresh);
         wrapper.classList.remove("smooth-scroll-wrapper--native");
         content.classList.remove("smooth-scroll-content--native");
@@ -128,7 +139,6 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
         window.cancelAnimationFrame(refreshFrame);
       }
 
-      document.documentElement.removeAttribute("data-anchor-boot");
       window.removeEventListener("load", queueRefresh);
       smoother?.kill();
     };
