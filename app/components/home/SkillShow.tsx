@@ -137,6 +137,7 @@ export default function SkillShow() {
 
       const entranceTimeline = gsap.timeline({
         scrollTrigger: {
+          id: "skill-show:entrance",
           trigger: skillsStrip ?? section,
           start: () =>
             skillsStrip
@@ -178,6 +179,7 @@ export default function SkillShow() {
 
       const effectsTimeline = gsap.timeline({
         scrollTrigger: {
+          id: "skill-show:effects",
           trigger: section,
           start: "top top",
           end: () => `+=${window.innerHeight * pinnedScrollScreens}`,
@@ -318,11 +320,16 @@ export default function SkillShow() {
       const flashFadeOutStart = flashFadeInEnd + flashHoldDistance;
       const flashOpacityDuration =
         flashFadeOutStart + flashFadeOutDistance;
-      const flashOpacityState = { progress: 0 };
       const setBurstOpacity = gsap.quickSetter(orbBurst, "opacity");
       const setFlashOpacity = gsap.quickSetter(orbFlashStage, "opacity");
-      const updateFlashOpacity = () => {
-        const time = flashOpacityState.progress * flashOpacityDuration;
+      const setBurstVisibility = gsap.quickSetter(orbBurst, "visibility");
+      const setFlashVisibility = gsap.quickSetter(
+        orbFlashStage,
+        "visibility",
+      );
+      const renderFlashState = (progress: number) => {
+        const time =
+          gsap.utils.clamp(0, 1, progress) * flashOpacityDuration;
         let burstOpacity = 0;
         let stageOpacity = 0;
 
@@ -347,9 +354,12 @@ export default function SkillShow() {
 
         setBurstOpacity(gsap.utils.clamp(0, 1, burstOpacity));
         setFlashOpacity(gsap.utils.clamp(0, 1, stageOpacity));
+        setBurstVisibility(burstOpacity > 0.001 ? "visible" : "hidden");
+        setFlashVisibility(stageOpacity > 0.001 ? "visible" : "hidden");
       };
       const flashTimeline = gsap.timeline({
         scrollTrigger: {
+          id: "skill-show:flash",
           trigger: document.documentElement,
           start: () =>
             (effectsTimeline.scrollTrigger?.end ?? 0) -
@@ -361,6 +371,8 @@ export default function SkillShow() {
           scrub: true,
           invalidateOnRefresh: true,
           refreshPriority: -10,
+          onRefresh: (self) => renderFlashState(self.progress),
+          onUpdate: (self) => renderFlashState(self.progress),
         },
       });
 
@@ -376,15 +388,14 @@ export default function SkillShow() {
           0,
         )
         .to(
-          flashOpacityState,
+          {},
           {
             duration: flashOpacityDuration,
-            ease: "none",
-            progress: 1,
-            onUpdate: updateFlashOpacity,
           },
           0,
         );
+
+      renderFlashState(flashTimeline.scrollTrigger?.progress ?? 0);
     }, section);
 
     return () => context.revert();

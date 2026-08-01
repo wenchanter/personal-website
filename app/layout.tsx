@@ -21,13 +21,6 @@ html[data-initial-anchor-entry] .hero-details-reveal {
   animation: none;
 }
 
-html[data-initial-anchor-entry] [data-skill-title-character],
-html[data-initial-anchor-entry] [data-skill-summary] {
-  visibility: visible;
-  opacity: 1;
-  filter: blur(0);
-  transform: none;
-}
 `;
 
 const initialScrollGuard = `

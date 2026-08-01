@@ -4,6 +4,8 @@ import { useLayoutEffect, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { getWorkPositionScrollTop } from "@/app/lib/workHistoryScroll";
+
 type ScrollTriggerBootProps = {
   children: ReactNode;
 };
@@ -48,8 +50,40 @@ export default function ScrollTriggerBoot({
       const target = targetId ? document.getElementById(targetId) : null;
 
       if (target) {
-        target.scrollIntoView({ block: "start", behavior: "auto" });
+        const workPositionTop = getWorkPositionScrollTop(target);
+
+        if (workPositionTop === null) {
+          target.scrollIntoView({ block: "start", behavior: "auto" });
+        } else {
+          window.scrollTo({ top: workPositionTop, behavior: "auto" });
+        }
       }
+
+      ScrollTrigger.update();
+
+      // A deep-link entry skips the physical journey through SkillShow. Bring
+      // only the timelines that are completely above the restored position to
+      // the same settled state produced by a normal downward scroll. Their
+      // existing ScrollTriggers remain active and own the reverse journey.
+      ScrollTrigger.getAll().forEach((trigger) => {
+        const id = trigger.vars.id;
+
+        if (
+          typeof id !== "string" ||
+          !id.startsWith("skill-show:") ||
+          trigger.end > window.scrollY + 1
+        ) {
+          return;
+        }
+
+        const scrubTween = trigger.getTween();
+
+        if (scrubTween) {
+          scrubTween.progress(1);
+        }
+
+        trigger.animation?.totalProgress(1, true);
+      });
 
       ScrollTrigger.update();
       documentElement.removeAttribute("data-anchor-boot");
