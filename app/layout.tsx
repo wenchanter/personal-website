@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SiteHeader from "@/app/components/layout/SiteHeader";
-import SmoothScroll from "@/app/components/layout/SmoothScroll";
+import ScrollTriggerBoot from "@/app/components/layout/ScrollTriggerBoot";
 
 import "./globals.css";
 
 const initialAnchorStyles = `
 @media (scripting: enabled) {
-  html[data-anchor-boot] [data-smooth-scroll-wrapper],
+  html[data-anchor-boot] [data-page-shell],
   html[data-anchor-boot] [data-orb-burst],
   html[data-anchor-boot] [data-orb-flash-stage] {
     visibility: hidden !important;
@@ -122,7 +122,7 @@ export default function RootLayout({
           Skip to content
         </Link>
         <SiteHeader />
-        <SmoothScroll>{children}</SmoothScroll>
+        <ScrollTriggerBoot>{children}</ScrollTriggerBoot>
         <div className="orb-burst" data-orb-burst aria-hidden="true" />
         <div
           className="orb-flash-stage bg-white"

@@ -63,14 +63,9 @@ export default async function BlogArticlePage(
 
   return (
     <>
-      {/*
-       * The contents rail relies on position: sticky, which cannot work inside
-       * ScrollSmoother's transformed content — opt this page into native scroll.
-       */}
       <main
         className="relative min-h-[100dvh] bg-stone-50 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-100"
         id="main-content"
-        data-native-sticky-page
       >
         <div className="relative isolate overflow-hidden bg-[linear-gradient(rgba(24,24,27,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(24,24,27,0.055)_1px,transparent_1px)] bg-[size:3rem_3rem] sm:bg-[size:4.5rem_4.5rem] dark:bg-[linear-gradient(rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)]">
           <ArticleHero post={post} />

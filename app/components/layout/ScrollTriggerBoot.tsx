@@ -1,35 +1,28 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, type ReactNode } from "react";
 import gsap from "gsap";
-import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-type SmoothScrollProps = {
+type ScrollTriggerBootProps = {
   children: ReactNode;
 };
 
-export default function SmoothScroll({ children }: SmoothScrollProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-
+/*
+ * The whole site scrolls natively — sticky card stacks and hash anchors both
+ * depend on it. This shell owns the two lifecycle points where layout is stable
+ * enough to measure ScrollTrigger start/end positions, and it releases the
+ * first-paint hold that `initialScrollGuard` places on the page when the entry
+ * URL carries a hash.
+ */
+export default function ScrollTriggerBoot({
+  children,
+}: ScrollTriggerBootProps) {
   useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+    gsap.registerPlugin(ScrollTrigger);
 
-    const wrapper = wrapperRef.current;
-    const content = contentRef.current;
-
-    if (!wrapper || !content) {
-      return;
-    }
-
-    const usesNativeSticky = content.querySelector("[data-native-sticky-page]");
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
     let refreshFrame: number | null = null;
     let isDisposed = false;
-    let smoother: ReturnType<typeof ScrollSmoother.create> | null = null;
     const documentElement = document.documentElement;
     let initialAnchorLayoutReady = !documentElement.hasAttribute(
       "data-anchor-boot",
@@ -55,11 +48,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       const target = targetId ? document.getElementById(targetId) : null;
 
       if (target) {
-        if (smoother) {
-          smoother.scrollTo(target, false, "top top");
-        } else {
-          target.scrollIntoView({ block: "start", behavior: "auto" });
-        }
+        target.scrollIntoView({ block: "start", behavior: "auto" });
       }
 
       ScrollTrigger.update();
@@ -98,38 +87,6 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     // tear down pinned ScrollTriggers and expose entrance-animation elements.
     window.addEventListener("load", queueRefresh, { once: true });
     refreshAfterFonts();
-
-    if (reducedMotion || usesNativeSticky) {
-      ScrollSmoother.get()?.kill();
-      wrapper.classList.add("smooth-scroll-wrapper--native");
-      content.classList.add("smooth-scroll-content--native");
-      queueRefresh();
-
-      return () => {
-        isDisposed = true;
-
-        if (refreshFrame !== null) {
-          window.cancelAnimationFrame(refreshFrame);
-        }
-
-        window.removeEventListener("load", queueRefresh);
-        wrapper.classList.remove("smooth-scroll-wrapper--native");
-        content.classList.remove("smooth-scroll-content--native");
-      };
-    }
-
-    ScrollSmoother.get()?.kill();
-
-    smoother = ScrollSmoother.create({
-      wrapper,
-      content,
-      smooth: 1,
-      smoothTouch: 0.1,
-      effects: false,
-      ignoreMobileResize: true,
-      normalizeScroll: true,
-    });
-
     queueRefresh();
 
     return () => {
@@ -140,23 +97,12 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       }
 
       window.removeEventListener("load", queueRefresh);
-      smoother?.kill();
     };
   }, []);
 
   return (
-    <div
-      ref={wrapperRef}
-      data-smooth-scroll-wrapper
-      className="smooth-scroll-wrapper"
-    >
-      <div
-        ref={contentRef}
-        data-smooth-scroll-content
-        className="smooth-scroll-content"
-      >
-        {children}
-      </div>
+    <div className="page-shell" data-page-shell>
+      {children}
     </div>
   );
 }

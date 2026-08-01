@@ -216,7 +216,6 @@ export default function WorkHistory() {
       scrollTweenRef.current?.kill();
       scrollTweenRef.current = null;
     };
-
     window.addEventListener("wheel", stopAutoScroll, { passive: true });
     window.addEventListener("touchstart", stopAutoScroll, { passive: true });
 
@@ -300,7 +299,6 @@ export default function WorkHistory() {
       ref={rootRef}
       className="relative z-10 bg-stone-50 px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-32 dark:bg-zinc-950"
       id="work-history"
-      data-native-sticky-page
       aria-labelledby="work-history-heading"
     >
       <div

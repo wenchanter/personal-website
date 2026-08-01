@@ -25,22 +25,11 @@ body {
   background: #86efac;
 }
 
-.smooth-scroll-wrapper {
-  overflow: hidden;
-}
-
-.smooth-scroll-content {
+/* Clears the fixed header. Never transformed: sticky descendants and native
+   hash anchors both position against the document scroller. */
+.page-shell {
   min-height: 100dvh;
   padding-top: 4.5rem;
-}
-
-.smooth-scroll-wrapper--native {
-  overflow: visible;
-}
-
-.smooth-scroll-content--native {
-  transform: none !important;
-  will-change: auto;
 }
 
 .site-chrome {
