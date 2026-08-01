@@ -84,6 +84,9 @@ export default function SkillShow() {
     }
 
     const context = gsap.context(() => {
+      const isInitialAnchorEntry = document.documentElement.hasAttribute(
+        "data-initial-anchor-entry",
+      );
       const characterDuration = 0.28;
       const characterStagger = 0.021;
       const titleRevealDuration =
@@ -137,6 +140,7 @@ export default function SkillShow() {
 
       const entranceTimeline = gsap.timeline({
         scrollTrigger: {
+          id: "skill-show:entrance",
           trigger: skillsStrip ?? section,
           start: () =>
             skillsStrip
@@ -178,6 +182,7 @@ export default function SkillShow() {
 
       const effectsTimeline = gsap.timeline({
         scrollTrigger: {
+          id: "skill-show:effects",
           trigger: section,
           start: "top top",
           end: () => `+=${window.innerHeight * pinnedScrollScreens}`,
@@ -318,15 +323,39 @@ export default function SkillShow() {
       const flashFadeOutStart = flashFadeInEnd + flashHoldDistance;
       const flashOpacityDuration =
         flashFadeOutStart + flashFadeOutDistance;
-      const flashOpacityState = { progress: 0 };
       const setBurstOpacity = gsap.quickSetter(orbBurst, "opacity");
       const setFlashOpacity = gsap.quickSetter(orbFlashStage, "opacity");
-      const updateFlashOpacity = () => {
-        const time = flashOpacityState.progress * flashOpacityDuration;
+      const setBurstVisibility = gsap.quickSetter(orbBurst, "visibility");
+      const setFlashVisibility = gsap.quickSetter(
+        orbFlashStage,
+        "visibility",
+      );
+      const pinEndProgress = burstLeadDistance / flashOpacityDuration;
+      const anchorReverseFadeInEnd = Math.min(0.82, pinEndProgress + 0.22);
+      const anchorReverseFadeOutEnd = Math.max(0, pinEndProgress - 0.14);
+      const renderFlashState = (progress: number, direction = 1) => {
+        const clampedProgress = gsap.utils.clamp(0, 1, progress);
+        const time = clampedProgress * flashOpacityDuration;
         let burstOpacity = 0;
         let stageOpacity = 0;
 
-        if (time <= flashFadeInStart) {
+        if (isInitialAnchorEntry && direction < 0) {
+          // A deep link reaches WorkHistory without visually travelling through
+          // SkillShow. On the reverse journey, use the full-screen stage only
+          // as a bridge while the section is still sliding back into place.
+          // Once SkillShow is fully pinned, fade the stage away without
+          // replaying the giant burst circle across the content.
+          if (clampedProgress >= anchorReverseFadeInEnd) {
+            stageOpacity =
+              (1 - clampedProgress) / (1 - anchorReverseFadeInEnd);
+          } else if (clampedProgress >= pinEndProgress) {
+            stageOpacity = 1;
+          } else if (clampedProgress > anchorReverseFadeOutEnd) {
+            stageOpacity =
+              (clampedProgress - anchorReverseFadeOutEnd) /
+              (pinEndProgress - anchorReverseFadeOutEnd);
+          }
+        } else if (time <= flashFadeInStart) {
           burstOpacity = Math.pow(
             gsap.utils.clamp(0, 1, time / flashFadeInStart),
             3,
@@ -347,9 +376,12 @@ export default function SkillShow() {
 
         setBurstOpacity(gsap.utils.clamp(0, 1, burstOpacity));
         setFlashOpacity(gsap.utils.clamp(0, 1, stageOpacity));
+        setBurstVisibility(burstOpacity > 0.001 ? "visible" : "hidden");
+        setFlashVisibility(stageOpacity > 0.001 ? "visible" : "hidden");
       };
       const flashTimeline = gsap.timeline({
         scrollTrigger: {
+          id: "skill-show:flash",
           trigger: document.documentElement,
           start: () =>
             (effectsTimeline.scrollTrigger?.end ?? 0) -
@@ -361,6 +393,9 @@ export default function SkillShow() {
           scrub: true,
           invalidateOnRefresh: true,
           refreshPriority: -10,
+          onRefresh: (self) =>
+            renderFlashState(self.progress, self.direction),
+          onUpdate: (self) => renderFlashState(self.progress, self.direction),
         },
       });
 
@@ -376,15 +411,14 @@ export default function SkillShow() {
           0,
         )
         .to(
-          flashOpacityState,
+          {},
           {
             duration: flashOpacityDuration,
-            ease: "none",
-            progress: 1,
-            onUpdate: updateFlashOpacity,
           },
           0,
         );
+
+      renderFlashState(flashTimeline.scrollTrigger?.progress ?? 0);
     }, section);
 
     return () => context.revert();

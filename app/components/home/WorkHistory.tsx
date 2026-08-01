@@ -16,6 +16,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import { profile, type WorkHistoryItem } from "@/app/data/profile";
+import { getWorkPositionScrollTop } from "@/app/lib/workHistoryScroll";
 
 const workCardThemes = {
   blue: {
@@ -172,9 +173,6 @@ function WorkDetailsSheet({
 
 export default function WorkHistory() {
   const rootRef = useRef<HTMLElement>(null);
-  const companyNavRef = useRef<HTMLElement>(null);
-  const cardStackRef = useRef<HTMLDivElement>(null);
-  const cardAnchorRefs = useRef<Array<HTMLDivElement | null>>([]);
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
   const scrollTweenRef = useRef<gsap.core.Tween | null>(null);
   const detailsTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -216,7 +214,6 @@ export default function WorkHistory() {
       scrollTweenRef.current?.kill();
       scrollTweenRef.current = null;
     };
-
     window.addEventListener("wheel", stopAutoScroll, { passive: true });
     window.addEventListener("touchstart", stopAutoScroll, { passive: true });
 
@@ -230,31 +227,19 @@ export default function WorkHistory() {
 
   const scrollToPosition = (index: number) => {
     const card = cardRefs.current[index];
-    const cardAnchor = cardAnchorRefs.current[index];
-    const cardStack = cardStackRef.current;
-    const companyNav = companyNavRef.current;
 
-    if (!card || !cardAnchor || !cardStack || !companyNav) {
+    if (!card) {
       return;
     }
 
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const stackTop = window.scrollY + cardStack.getBoundingClientRect().top;
-    const stickyTop = Number.parseFloat(window.getComputedStyle(card).top) || 0;
-    const navStickyTop =
-      Number.parseFloat(window.getComputedStyle(companyNav).top) || stickyTop;
-    const alignmentTop = window.matchMedia("(min-width: 64rem)").matches
-      ? navStickyTop
-      : stickyTop;
-    const maxScroll =
-      document.documentElement.scrollHeight - window.innerHeight;
-    const targetTop = gsap.utils.clamp(
-      0,
-      maxScroll,
-      stackTop + cardAnchor.offsetTop - alignmentTop,
-    );
+    const targetTop = getWorkPositionScrollTop(card);
+
+    if (targetTop === null) {
+      return;
+    }
 
     window.history.replaceState(
       null,
@@ -300,7 +285,6 @@ export default function WorkHistory() {
       ref={rootRef}
       className="relative z-10 bg-stone-50 px-4 py-24 sm:px-6 sm:py-28 lg:px-8 lg:py-32 dark:bg-zinc-950"
       id="work-history"
-      data-native-sticky-page
       aria-labelledby="work-history-heading"
     >
       <div
@@ -321,8 +305,8 @@ export default function WorkHistory() {
 
         <div className="mt-12 items-start lg:mt-16 lg:grid lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-0">
           <nav
-            ref={companyNavRef}
             className="sticky top-20 z-30 flex overflow-x-auto rounded-xl border border-zinc-950/10 bg-white/94 shadow-[0_18px_50px_rgba(24,24,27,0.08)] backdrop-blur-md lg:top-24 lg:h-[42rem] lg:flex-col lg:overflow-hidden lg:rounded-r-none xl:h-[38rem] dark:border-white/12 dark:bg-zinc-900/94 dark:shadow-[0_18px_50px_rgba(0,0,0,0.24)]"
+            data-work-history-company-nav
             aria-label="Work history companies"
           >
             {profile.workHistory.map((position, index) => {
@@ -388,8 +372,8 @@ export default function WorkHistory() {
           </nav>
 
           <div
-            ref={cardStackRef}
             className="relative mt-6 lg:mt-0"
+            data-work-history-card-stack
           >
             {profile.workHistory.map((position, index) => {
               const isLastPosition = index === profile.workHistory.length - 1;
@@ -404,10 +388,8 @@ export default function WorkHistory() {
               return (
                 <Fragment key={position.id}>
                   <div
-                    ref={(element) => {
-                      cardAnchorRefs.current[index] = element;
-                    }}
                     className="h-0"
+                    data-work-position-anchor={position.id}
                     aria-hidden="true"
                   />
                   <article
