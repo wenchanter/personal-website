@@ -5,7 +5,7 @@ import BlogIndex from "@/app/components/blog/BlogIndex";
 import SiteFooter from "@/app/components/layout/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Writing — Harrison Wang",
+  title: "Blog — Harrison Wang",
   description:
     "Thoughts on distributed systems, architecture patterns, and engineering at scale.",
   robots: {
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     canonical: "/blog/",
   },
   openGraph: {
-    title: "Writing — Harrison Wang",
+    title: "Blog — Harrison Wang",
     description:
       "Thoughts on distributed systems, architecture patterns, and engineering at scale.",
     url: "/blog/",
