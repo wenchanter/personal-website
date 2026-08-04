@@ -1,4 +1,4 @@
-import type { ArticleBlock } from "@/app/data/blog";
+import type { ArticleBlock } from "@/app/blog/types";
 
 function CodeGlyph() {
   return (

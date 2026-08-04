@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import type { BlogPostSummary } from "@/app/data/blog";
+import type { BlogPostSummary } from "@/app/blog/types";
 
 export type ArticleHeading = {
   id: string;

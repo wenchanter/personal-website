@@ -3,11 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
-import {
-  blogFilters,
-  blogPosts,
-  type BlogPostSummary,
-} from "@/app/data/blog";
+import type { BlogPostSummary } from "@/app/blog/types";
 
 function ArrowUpRight({ className = "size-5" }: { className?: string }) {
   return (
@@ -137,17 +133,20 @@ function BlogCard({ post }: { post: BlogPostSummary }) {
   );
 }
 
-export default function BlogIndex() {
-  const [activeFilter, setActiveFilter] = useState<(typeof blogFilters)[number]>(
-    "All",
-  );
-  const featuredPost = blogPosts.find((post) => post.featured) ?? blogPosts[0];
+type BlogIndexProps = {
+  filters: readonly string[];
+  posts: readonly BlogPostSummary[];
+};
+
+export default function BlogIndex({ filters, posts }: BlogIndexProps) {
+  const [activeFilter, setActiveFilter] = useState("All");
+  const featuredPost = posts.find((post) => post.featured) ?? posts[0];
   const filteredPosts = useMemo(
     () =>
       activeFilter === "All"
-        ? blogPosts
-        : blogPosts.filter((post) => post.tags.includes(activeFilter)),
-    [activeFilter],
+        ? posts
+        : posts.filter((post) => post.tags.includes(activeFilter)),
+    [activeFilter, posts],
   );
 
   return (
@@ -155,13 +154,13 @@ export default function BlogIndex() {
       className="relative mx-auto w-full max-w-6xl px-4 pt-10 pb-20 sm:px-6 sm:pt-12 sm:pb-24 lg:px-8 lg:pb-28"
       aria-label="Writing index"
     >
-      <FeaturedPost post={featuredPost} />
+      {featuredPost ? <FeaturedPost post={featuredPost} /> : null}
 
       <div
         className="mt-9 flex gap-2 overflow-x-auto pb-2 sm:mt-10 sm:flex-wrap sm:overflow-visible"
         aria-label="Filter articles"
       >
-        {blogFilters.map((filter) => {
+        {filters.map((filter) => {
           const isActive = filter === activeFilter;
 
           return (
