@@ -67,7 +67,7 @@ export default function BlogHero() {
             className="blog-hero-rise font-mono text-xs font-semibold tracking-[0.28em] text-brand uppercase sm:text-sm"
             style={{ "--blog-hero-delay": "80ms" } as CSSProperties}
           >
-            Blog <span aria-hidden="true">·</span> Thinking
+            Tech <span aria-hidden="true">·</span> Thought <span aria-hidden="true">·</span> Life
           </p>
 
           <blockquote className="relative mt-8">
