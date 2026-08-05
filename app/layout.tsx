@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SiteHeader from "@/app/components/layout/SiteHeader";
+import { SITE_URL } from "@/app/lib/site";
 import ScrollTriggerBoot from "@/app/components/layout/ScrollTriggerBoot";
 
 import "./globals.css";
@@ -58,7 +59,7 @@ const initialScrollGuard = `
 `;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://harrison.tech"),
+  metadataBase: new URL(SITE_URL),
   title: "Harrison Wang — Senior Software Engineer",
   description: "Senior Software Engineer | Architect | Continuous Learner",
   icons: {
@@ -77,7 +78,9 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://harrisontech.pages.dev/icons/hw-monogram.png",
+        // Relative: Next resolves it against `metadataBase`, so the domain
+        // lives in exactly one place.
+        url: "/icons/hw-monogram.png",
         width: 256,
         height: 256,
         alt: "Harrison Wang monogram",
@@ -88,7 +91,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Harrison Wang — Senior Software Engineer",
     description: "Senior Software Engineer | Architect | Continuous Learner",
-    images: ["https://harrisontech.pages.dev/icons/hw-monogram.png"],
+    images: ["/icons/hw-monogram.png"],
   },
 };
 

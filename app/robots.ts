@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://harrison.tech";
+import { SITE_URL } from "@/app/lib/site";
 
 export const dynamic = "force-static";
 
