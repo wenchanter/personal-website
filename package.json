@@ -8,6 +8,7 @@
     "prebuild": "npm run sync:blog",
     "build": "next build",
     "sync:blog": "tsx scripts/sync-blog.ts",
+    "golden": "tsx scripts/render-golden.tsx",
     "start": "next start",
     "lint": "eslint"
   },

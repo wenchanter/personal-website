@@ -1,6 +1,5 @@
 import generatedPosts from "@/app/generated/blog-data.json";
 
-import { richTextToPlain } from "@/app/blog/types";
 import type {
   ArticleBlock,
   BlogPost,
@@ -43,21 +42,11 @@ export function getPostBySlug(slug: string): BlogPost | undefined {
   return blogPosts.find((post) => post.slug === slug);
 }
 
-export function getHeadings(content: readonly ArticleBlock[]) {
-  return content.flatMap((block) =>
-    block.type === "heading"
-      ? [
-          {
-            id: block.id,
-            // The table of contents is plain text, but a heading may carry
-            // inline marks, so flatten it here.
-            text: richTextToPlain(block.text),
-            level: block.level ?? 2,
-          },
-        ]
-      : [],
-  );
-}
+/**
+ * Re-exported from `derive.ts`, which the live preview also imports — pulling
+ * it from here would drag the whole generated post archive into that bundle.
+ */
+export { getHeadings } from "@/app/blog/derive";
 
 export function getRelatedPosts(slug: string, limit = 3): BlogPostSummary[] {
   const post = getPostBySlug(slug);

@@ -3,6 +3,12 @@ import path from "node:path";
 import { loadEnvConfig } from "@next/env";
 
 import { blogPosts as seedPosts } from "../app/data/blog";
+// Reading time and the date format are shared with the live preview, so the
+// figures an author sees while writing are the ones the build will emit.
+import {
+  formatPublishedAt as formatDate,
+  readingTime,
+} from "../app/blog/derive";
 import type {
   ArticleBlock,
   BlogPost,
@@ -273,45 +279,14 @@ function parseContent(value: unknown, postIndex: number): ArticleBlock[] {
   });
 }
 
-function textFromContent(content: readonly ArticleBlock[]): string {
-  return content
-    .flatMap((block) => {
-      if (block.type === "list") {
-        return block.items.map(plainText);
-      }
-
-      if (block.type === "code") {
-        return [block.code];
-      }
-
-      if (block.type === "image") {
-        return [block.alt];
-      }
-
-      return [plainText(block.text)];
-    })
-    .join(" ");
-}
-
-function readingTime(content: readonly ArticleBlock[]): string {
-  const wordCount = textFromContent(content).trim().split(/\s+/).filter(Boolean).length;
-
-  return `${Math.max(1, Math.ceil(wordCount / 220))} min read`;
-}
-
 function formatPublishedAt(value: string, postIndex: number): string {
-  const date = new Date(value);
+  const formatted = formatDate(value);
 
-  if (Number.isNaN(date.valueOf())) {
+  if (formatted === null) {
     throw new Error(`CMS post ${postIndex + 1} has an invalid publishedAt`);
   }
 
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(date);
+  return formatted;
 }
 
 function normalisePost(rawPost: unknown, postIndex: number): BlogPost | null {
