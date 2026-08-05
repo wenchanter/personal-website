@@ -11,7 +11,7 @@ import {
   getHeadings,
   getPostBySlug,
   getRelatedPosts,
-} from "@/app/data/blog";
+} from "@/app/blog/content";
 
 export function generateStaticParams() {
   return blogPosts.map((post) => ({ slug: post.slug }));

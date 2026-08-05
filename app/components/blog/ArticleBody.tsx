@@ -1,4 +1,4 @@
-import type { ArticleBlock } from "@/app/data/blog";
+import type { ArticleBlock, InlineNode, RichText } from "@/app/blog/types";
 
 function CodeGlyph() {
   return (
@@ -14,12 +14,81 @@ function CodeGlyph() {
   );
 }
 
+/**
+ * Renders a text run with its marks. The CMS sends plain strings for
+ * unformatted text and node arrays once a block contains bold, italics,
+ * inline code, or a link.
+ */
+function Inline({ value }: { value: RichText }) {
+  if (typeof value === "string") {
+    return <>{value}</>;
+  }
+
+  return (
+    <>
+      {value.map((node, index) => (
+        <InlineRun key={index} node={node} />
+      ))}
+    </>
+  );
+}
+
+function InlineRun({ node }: { node: InlineNode }) {
+  let content: React.ReactNode = node.text;
+  const marks = node.marks ?? [];
+
+  if (marks.includes("code")) {
+    content = (
+      <code className="rounded bg-zinc-950/5 px-1 py-0.5 font-mono text-[0.9em] dark:bg-white/10">
+        {content}
+      </code>
+    );
+  }
+
+  if (marks.includes("em")) {
+    content = <em>{content}</em>;
+  }
+
+  if (marks.includes("strike")) {
+    content = <s>{content}</s>;
+  }
+
+  if (marks.includes("underline")) {
+    content = <u className="underline underline-offset-2">{content}</u>;
+  }
+
+  if (marks.includes("strong")) {
+    content = (
+      <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
+        {content}
+      </strong>
+    );
+  }
+
+  if (node.href) {
+    const external = /^https?:\/\//.test(node.href);
+    content = (
+      <a
+        className="text-brand underline underline-offset-2 hover:no-underline"
+        href={node.href}
+        {...(external
+          ? { target: "_blank", rel: "noreferrer noopener" }
+          : {})}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return <>{content}</>;
+}
+
 function Block({ block }: { block: ArticleBlock }) {
   switch (block.type) {
     case "lead":
       return (
         <p className="text-lg leading-9 text-pretty text-zinc-700 sm:text-xl sm:leading-10 dark:text-zinc-300">
-          {block.text}
+          <Inline value={block.text} />
         </p>
       );
 
@@ -30,7 +99,7 @@ function Block({ block }: { block: ArticleBlock }) {
             className="mt-12 scroll-mt-28 text-xl leading-tight font-bold tracking-[-0.03em] text-zinc-950 sm:text-2xl dark:text-zinc-50"
             id={block.id}
           >
-            {block.text}
+            <Inline value={block.text} />
           </h3>
         );
       }
@@ -40,7 +109,7 @@ function Block({ block }: { block: ArticleBlock }) {
           className="mt-16 scroll-mt-28 text-2xl leading-tight font-extrabold tracking-[-0.04em] text-zinc-950 first:mt-0 sm:text-3xl dark:text-zinc-50"
           id={block.id}
         >
-          {block.text}
+          <Inline value={block.text} />
         </h2>
       );
     }
@@ -48,13 +117,13 @@ function Block({ block }: { block: ArticleBlock }) {
     case "paragraph":
       return (
         <p className="mt-6 text-base leading-9 text-pretty text-zinc-600 sm:text-[1.0625rem] sm:leading-9 dark:text-zinc-400">
-          {block.text}
+          <Inline value={block.text} />
         </p>
       );
 
     case "list": {
       const items = block.items.map((item, index) => (
-        <li className="flex gap-3" key={item}>
+        <li className="flex gap-3" key={index}>
           {block.ordered ? (
             <span className="mt-0.5 shrink-0 font-mono text-sm font-semibold text-brand">
               {String(index + 1).padStart(2, "0")}
@@ -65,7 +134,9 @@ function Block({ block }: { block: ArticleBlock }) {
               aria-hidden="true"
             />
           )}
-          <span>{item}</span>
+          <span>
+            <Inline value={item} />
+          </span>
         </li>
       ));
 
@@ -84,7 +155,7 @@ function Block({ block }: { block: ArticleBlock }) {
       return (
         <figure className="mt-10 border-l-[3px] border-brand py-1 pl-6">
           <blockquote className="text-lg leading-9 text-pretty text-zinc-600 italic sm:text-xl sm:leading-10 dark:text-zinc-300">
-            {block.text}
+            <Inline value={block.text} />
           </blockquote>
           {block.cite ? (
             <figcaption className="mt-3 font-mono text-xs text-zinc-400 not-italic dark:text-zinc-500">
@@ -117,6 +188,33 @@ function Block({ block }: { block: ArticleBlock }) {
             <code className="font-mono">{block.code}</code>
           </pre>
         </div>
+      );
+
+    case "image":
+      /*
+       * A plain <img> rather than next/image: the site is a static export, the
+       * CMS serves these bytes with an immutable cache header, and the
+       * intrinsic size travels with the block so the browser can reserve space
+       * before the image loads.
+       */
+      return (
+        <figure className="mt-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={block.src}
+            alt={block.alt}
+            width={block.width}
+            height={block.height}
+            loading="lazy"
+            decoding="async"
+            className="h-auto w-full rounded-xl border border-zinc-950/10 dark:border-white/10"
+          />
+          {block.alt ? (
+            <figcaption className="mt-3 text-center text-sm text-zinc-500 dark:text-zinc-400">
+              {block.alt}
+            </figcaption>
+          ) : null}
+        </figure>
       );
 
     default:

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { BlogPostSummary } from "@/app/data/blog";
+import type { BlogPostSummary } from "@/app/blog/types";
 
 function ArrowRight() {
   return (

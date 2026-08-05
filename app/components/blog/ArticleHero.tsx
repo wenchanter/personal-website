@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { blogAuthor, type BlogPostSummary } from "@/app/data/blog";
+import { blogAuthor } from "@/app/blog/content";
+import type { BlogPostSummary } from "@/app/blog/types";
 
 function BackArrow() {
   return (

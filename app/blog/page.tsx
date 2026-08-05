@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import BlogHero from "@/app/components/blog/BlogHero";
 import BlogIndex from "@/app/components/blog/BlogIndex";
 import SiteFooter from "@/app/components/layout/SiteFooter";
+import { blogFilters, blogPostSummaries } from "@/app/blog/content";
 
 export const metadata: Metadata = {
-  title: "Writing — Harrison Wang",
+  title: "Blog — Harrison Wang",
   description:
     "Thoughts on distributed systems, architecture patterns, and engineering at scale.",
   robots: {
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     canonical: "/blog/",
   },
   openGraph: {
-    title: "Writing — Harrison Wang",
+    title: "Blog — Harrison Wang",
     description:
       "Thoughts on distributed systems, architecture patterns, and engineering at scale.",
     url: "/blog/",
@@ -33,7 +34,7 @@ export default function BlogPage() {
         <div className="relative isolate overflow-hidden bg-[linear-gradient(rgba(24,24,27,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(24,24,27,0.055)_1px,transparent_1px)] bg-[size:3rem_3rem] sm:bg-[size:4.5rem_4.5rem] dark:bg-[linear-gradient(rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)]">
           <BlogHero />
         </div>
-        <BlogIndex />
+        <BlogIndex filters={blogFilters} posts={blogPostSummaries} />
       </main>
       <SiteFooter />
     </>
