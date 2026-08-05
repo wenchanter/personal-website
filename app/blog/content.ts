@@ -1,5 +1,6 @@
 import generatedPosts from "@/app/generated/blog-data.json";
 
+import { richTextToPlain } from "@/app/blog/types";
 import type {
   ArticleBlock,
   BlogPost,
@@ -45,7 +46,15 @@ export function getPostBySlug(slug: string): BlogPost | undefined {
 export function getHeadings(content: readonly ArticleBlock[]) {
   return content.flatMap((block) =>
     block.type === "heading"
-      ? [{ id: block.id, text: block.text, level: block.level ?? 2 }]
+      ? [
+          {
+            id: block.id,
+            // The table of contents is plain text, but a heading may carry
+            // inline marks, so flatten it here.
+            text: richTextToPlain(block.text),
+            level: block.level ?? 2,
+          },
+        ]
       : [],
   );
 }

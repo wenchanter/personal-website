@@ -3,7 +3,13 @@ import path from "node:path";
 import { loadEnvConfig } from "@next/env";
 
 import { blogPosts as seedPosts } from "../app/data/blog";
-import type { ArticleBlock, BlogPost } from "../app/blog/types";
+import type {
+  ArticleBlock,
+  BlogPost,
+  InlineMark,
+  InlineNode,
+  RichText,
+} from "../app/blog/types";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -55,6 +61,90 @@ function namedValue(value: unknown): string | undefined {
   );
 }
 
+const INLINE_MARKS: readonly InlineMark[] = [
+  "strong",
+  "em",
+  "code",
+  "underline",
+  "strike",
+];
+
+/**
+ * Accepts either a plain string or the CMS's inline-node array. Anything else
+ * is a hard error: a malformed block must fail the build rather than render as
+ * "[object Object]" on the live site.
+ */
+function requiredRichText(
+  value: unknown,
+  field: string,
+  postIndex: number,
+): RichText {
+  if (typeof value === "string") {
+    return requiredString(value, field, postIndex);
+  }
+
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`CMS post ${postIndex + 1} has an invalid ${field}`);
+  }
+
+  const nodes = value.map((rawNode, nodeIndex): InlineNode => {
+    if (!isRecord(rawNode)) {
+      throw new Error(
+        `CMS post ${postIndex + 1} ${field}[${nodeIndex}] is not an object`,
+      );
+    }
+
+    if (rawNode.type !== "text" || typeof rawNode.text !== "string") {
+      throw new Error(
+        `CMS post ${postIndex + 1} ${field}[${nodeIndex}] is not a text node`,
+      );
+    }
+
+    const node: InlineNode = { type: "text", text: rawNode.text };
+
+    if (rawNode.marks !== undefined) {
+      if (!Array.isArray(rawNode.marks)) {
+        throw new Error(
+          `CMS post ${postIndex + 1} ${field}[${nodeIndex}].marks must be an array`,
+        );
+      }
+
+      const marks = rawNode.marks.map((mark) => {
+        if (!INLINE_MARKS.includes(mark as InlineMark)) {
+          throw new Error(
+            `CMS post ${postIndex + 1} ${field}[${nodeIndex}] has unsupported mark "${String(mark)}"`,
+          );
+        }
+
+        return mark as InlineMark;
+      });
+
+      if (marks.length > 0) {
+        node.marks = marks;
+      }
+    }
+
+    const href = optionalString(rawNode.href);
+    if (href) {
+      node.href = href;
+    }
+
+    return node;
+  });
+
+  if (nodes.every((node) => node.text.trim() === "")) {
+    throw new Error(`CMS post ${postIndex + 1} has an empty ${field}`);
+  }
+
+  return nodes;
+}
+
+function plainText(value: RichText): string {
+  return typeof value === "string"
+    ? value
+    : value.map((node) => node.text).join("");
+}
+
 function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -87,7 +177,7 @@ function parseContent(value: unknown, postIndex: number): ArticleBlock[] {
       case "paragraph":
         return {
           type,
-          text: requiredString(
+          text: requiredRichText(
             rawBlock.text,
             `content[${blockIndex}].text`,
             postIndex,
@@ -95,7 +185,7 @@ function parseContent(value: unknown, postIndex: number): ArticleBlock[] {
         };
 
       case "heading": {
-        const text = requiredString(
+        const text = requiredRichText(
           rawBlock.text,
           `content[${blockIndex}].text`,
           postIndex,
@@ -106,7 +196,7 @@ function parseContent(value: unknown, postIndex: number): ArticleBlock[] {
           type,
           id:
             optionalString(rawBlock.id) ??
-            (slugify(text) || `heading-${blockIndex + 1}`),
+            (slugify(plainText(text)) || `heading-${blockIndex + 1}`),
           text,
           level: requestedLevel === 3 ? 3 : 2,
         };
@@ -122,8 +212,10 @@ function parseContent(value: unknown, postIndex: number): ArticleBlock[] {
         return {
           type,
           items: rawBlock.items.map((item, itemIndex) =>
-            requiredString(
-              isRecord(item) ? item.text : item,
+            requiredRichText(
+              isRecord(item) && !Array.isArray(item) && "text" in item
+                ? item.text
+                : item,
               `content[${blockIndex}].items[${itemIndex}]`,
               postIndex,
             ),
@@ -134,7 +226,7 @@ function parseContent(value: unknown, postIndex: number): ArticleBlock[] {
       case "quote":
         return {
           type,
-          text: requiredString(
+          text: requiredRichText(
             rawBlock.text,
             `content[${blockIndex}].text`,
             postIndex,
@@ -153,6 +245,26 @@ function parseContent(value: unknown, postIndex: number): ArticleBlock[] {
           ),
         };
 
+      case "image": {
+        const dimension = (value: unknown): number | undefined => {
+          const parsed = Number(value);
+          return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+        };
+
+        return {
+          type,
+          src: requiredString(
+            rawBlock.src,
+            `content[${blockIndex}].src`,
+            postIndex,
+          ),
+          // Alt may legitimately be empty for a decorative image.
+          alt: typeof rawBlock.alt === "string" ? rawBlock.alt : "",
+          width: dimension(rawBlock.width),
+          height: dimension(rawBlock.height),
+        };
+      }
+
       default:
         throw new Error(
           `CMS post ${postIndex + 1} uses unsupported block type "${type}"`,
@@ -165,14 +277,18 @@ function textFromContent(content: readonly ArticleBlock[]): string {
   return content
     .flatMap((block) => {
       if (block.type === "list") {
-        return block.items;
+        return block.items.map(plainText);
       }
 
       if (block.type === "code") {
         return [block.code];
       }
 
-      return [block.text];
+      if (block.type === "image") {
+        return [block.alt];
+      }
+
+      return [plainText(block.text)];
     })
     .join(" ");
 }
