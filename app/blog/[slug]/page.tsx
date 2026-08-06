@@ -71,9 +71,9 @@ export default async function BlogArticlePage(
           <ArticleHero post={post} />
         </div>
 
-        <div className="relative mx-auto w-full max-w-6xl px-4 pt-12 pb-20 sm:px-6 sm:pt-14 sm:pb-24 lg:px-8 lg:pb-28">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-14 xl:gap-20">
-            <article className="max-w-3xl">
+        <div className="relative mx-auto w-full max-w-[66.5rem] px-4 pt-12 pb-20 sm:px-6 sm:pt-14 sm:pb-24 lg:px-8 lg:pb-28">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-14">
+            <article className="min-w-0 max-w-[44rem]">
               <ArticleBody content={post.content} />
               <ArticleFooter post={post} />
             </article>

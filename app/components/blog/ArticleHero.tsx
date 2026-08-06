@@ -80,7 +80,7 @@ function toIsoDate(publishedAt: string) {
 export default function ArticleHero({ post }: { post: BlogPostSummary }) {
   return (
     <header
-      className="relative mx-auto w-full max-w-6xl px-4 pt-8 pb-12 sm:px-6 sm:pt-10 sm:pb-16 lg:px-8"
+      className="relative mx-auto w-full max-w-[66.5rem] px-4 pt-8 pb-12 sm:px-6 sm:pt-10 sm:pb-16 lg:px-8"
       aria-labelledby="article-heading"
     >
       <Link
