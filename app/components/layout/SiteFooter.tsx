@@ -1,12 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import BlogComingSoonButton from "@/app/components/ui/BlogComingSoonButton";
 import { profile } from "@/app/data/profile";
 
 const footerNavigation = [
   { label: "Home", href: "/#home" },
-  { label: "Blog", href: "/#writing" },
+  { label: "Blog", href: "/blog/" },
 ] as const;
 
 const footerLinkClass =
@@ -51,7 +50,9 @@ export default function SiteFooter() {
 
       <div className="relative mx-auto max-w-6xl">
         <div className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-10 lg:gap-x-14">
-          <Link
+          {/* Full navigation resets the home-page anchor state. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a
             className="col-span-2 col-start-1 row-start-1 inline-flex w-fit items-center gap-1.5 text-base font-extrabold tracking-[-0.05em] text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand sm:col-span-1 sm:col-start-1 sm:row-start-1 dark:text-zinc-100"
             href="/#home"
             aria-label="Harrison dot tech, home"
@@ -66,7 +67,7 @@ export default function SiteFooter() {
             <span>
               harrison.<span className="text-brand">tech</span>
             </span>
-          </Link>
+          </a>
 
           <p
             className="col-start-1 row-start-3 mt-3 font-mono text-[0.65rem] font-semibold tracking-[0.2em] text-zinc-400 uppercase sm:col-start-2 sm:row-start-1 sm:mt-0 sm:self-center dark:text-zinc-500"
@@ -88,13 +89,14 @@ export default function SiteFooter() {
             aria-labelledby="footer-navigation-heading"
           >
             {footerNavigation.map((item) => (
-              item.label === "Blog" ? (
-                <BlogComingSoonButton
+              item.label === "Home" ? (
+                <a
                   className={footerLinkClass}
+                  href={item.href}
                   key={item.href}
                 >
                   {item.label}
-                </BlogComingSoonButton>
+                </a>
               ) : (
                 <Link
                   className={footerLinkClass}
