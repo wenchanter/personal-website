@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import AnimatedProfileHeading from "@/app/components/home/AnimatedProfileHeading";
 import ProfileSignals from "@/app/components/home/ProfileSignals";
-import BlogComingSoonButton from "@/app/components/ui/BlogComingSoonButton";
 import { profile } from "@/app/data/profile";
 
 const handlePositions = [
@@ -49,11 +48,12 @@ export default function Hero() {
         </p>
 
         <div className="mt-8 grid w-full max-w-lg grid-cols-1 gap-3 sm:mt-9 sm:grid-cols-2">
-          <BlogComingSoonButton
+          <Link
             className="inline-flex h-13 items-center justify-center rounded-md bg-zinc-900 px-6 text-base font-semibold whitespace-nowrap text-stone-50 transition duration-200 hover:-translate-y-0.5 hover:bg-brand focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-px motion-reduce:transform-none motion-reduce:transition-none dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-brand dark:hover:text-white"
+            href="/blog/"
           >
             Read blog
-          </BlogComingSoonButton>
+          </Link>
           <Link
             className="inline-flex h-13 items-center justify-center rounded-md border border-zinc-300 bg-stone-50/80 px-6 text-base font-semibold whitespace-nowrap text-zinc-700 transition duration-200 hover:-translate-y-0.5 hover:border-zinc-500 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand active:translate-y-px motion-reduce:transform-none motion-reduce:transition-none dark:border-zinc-700 dark:bg-zinc-950/70 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
             href="/#skills"
