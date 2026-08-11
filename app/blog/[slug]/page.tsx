@@ -12,6 +12,7 @@ import {
   getPostBySlug,
   getRelatedPosts,
 } from "@/app/blog/content";
+import { SITE_NAME } from "@/app/lib/site";
 
 export function generateStaticParams() {
   return blogPosts.map((post) => ({ slug: post.slug }));
@@ -33,8 +34,15 @@ export async function generateMetadata(
     title,
     description: post.description,
     robots: {
-      index: false,
-      follow: false,
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
     },
     alternates: {
       canonical: `/blog/${post.slug}/`,
@@ -43,7 +51,27 @@ export async function generateMetadata(
       title,
       description: post.description,
       url: `/blog/${post.slug}/`,
+      siteName: SITE_NAME,
+      locale: "en_NZ",
       type: "article",
+      publishedTime: new Date(post.publishedAt).toISOString(),
+      authors: [SITE_NAME],
+      section: post.category,
+      tags: [...post.tags],
+      images: [
+        {
+          url: "/icons/hw-monogram.png",
+          width: 256,
+          height: 256,
+          alt: "Harrison Wang monogram",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description: post.description,
+      images: ["/icons/hw-monogram.png"],
     },
   };
 }
