@@ -4,23 +4,52 @@ import BlogHero from "@/app/components/blog/BlogHero";
 import BlogIndex from "@/app/components/blog/BlogIndex";
 import SiteFooter from "@/app/components/layout/SiteFooter";
 import { blogFilters, blogPostSummaries } from "@/app/blog/content";
+import {
+  BLOG_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+} from "@/app/lib/site";
 
 export const metadata: Metadata = {
   title: "Blog — Harrison Wang",
-  description:
-    "Thoughts on distributed systems, architecture patterns, and engineering at scale.",
+  description: BLOG_DESCRIPTION,
+  keywords: [...SITE_KEYWORDS],
+  authors: [{ name: SITE_NAME }],
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   alternates: {
     canonical: "/blog/",
   },
   openGraph: {
     title: "Blog — Harrison Wang",
-    description:
-      "Thoughts on distributed systems, architecture patterns, and engineering at scale.",
+    description: BLOG_DESCRIPTION,
     url: "/blog/",
+    siteName: SITE_NAME,
+    locale: "en_NZ",
+    type: "website",
+    images: [
+      {
+        url: "/icons/hw-monogram.png",
+        width: 256,
+        height: 256,
+        alt: "Harrison Wang monogram",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Blog — Harrison Wang",
+    description: BLOG_DESCRIPTION,
+    images: ["/icons/hw-monogram.png"],
   },
 };
 

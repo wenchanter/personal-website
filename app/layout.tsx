@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SiteHeader from "@/app/components/layout/SiteHeader";
-import { SITE_URL } from "@/app/lib/site";
+import { profile } from "@/app/data/profile";
+import {
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_URL,
+} from "@/app/lib/site";
 import ScrollTriggerBoot from "@/app/components/layout/ScrollTriggerBoot";
 
 import "./globals.css";
@@ -61,7 +67,24 @@ const initialScrollGuard = `
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Harrison Wang — Senior Software Engineer",
-  description: "Senior Software Engineer | Architect | Continuous Learner",
+  description: SITE_DESCRIPTION,
+  keywords: [...SITE_KEYWORDS],
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  applicationName: SITE_NAME,
+  category: "technology",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: "/icons/hw-monogram.png",
     shortcut: "/icons/hw-monogram.png",
@@ -72,9 +95,10 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Harrison Wang — Senior Software Engineer",
-    description: "Senior Software Engineer | Architect | Continuous Learner",
-    url: "/",
-    siteName: "Harrison Wang",
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: "en_NZ",
     type: "website",
     images: [
       {
@@ -90,10 +114,43 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "Harrison Wang — Senior Software Engineer",
-    description: "Senior Software Engineer | Architect | Continuous Learner",
+    description: SITE_DESCRIPTION,
     images: ["/icons/hw-monogram.png"],
   },
 };
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${SITE_URL}/#person`,
+      name: profile.name,
+      url: SITE_URL,
+      image: `${SITE_URL}/icons/hw-monogram.png`,
+      jobTitle: "Senior Software Engineer",
+      description: SITE_DESCRIPTION,
+      sameAs: [profile.linkedin],
+      knowsAbout: [
+        "Distributed systems",
+        "Domain-Driven Design",
+        "Software architecture",
+        "High-concurrency systems",
+        "Next.js",
+        "React",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE_NAME,
+      description: SITE_DESCRIPTION,
+      inLanguage: "en-NZ",
+      publisher: { "@id": `${SITE_URL}/#person` },
+    },
+  ],
+} as const;
 
 export default function RootLayout({
   children,
@@ -109,6 +166,10 @@ export default function RootLayout({
       <head>
         <style>{initialAnchorStyles}</style>
         <script dangerouslySetInnerHTML={{ __html: initialScrollGuard }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </head>
       <body className="flex min-h-full flex-col">
         <Link
