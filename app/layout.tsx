@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import GoogleAnalytics from "@/app/components/analytics/GoogleAnalytics";
 import SiteHeader from "@/app/components/layout/SiteHeader";
 import { profile } from "@/app/data/profile";
 import {
@@ -172,6 +173,7 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-full flex-col">
+        <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_ID} />
         <Link
           className="fixed top-3 left-3 z-[60] -translate-y-20 rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition-transform focus:translate-y-0 dark:bg-zinc-100 dark:text-zinc-950"
           href="#main-content"
